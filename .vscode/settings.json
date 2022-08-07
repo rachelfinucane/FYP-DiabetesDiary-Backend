@@ -1,0 +1,9 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/62bb7053-26a0-45c1-8313-210a9411d772/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/diabetes-diary",
+    "appService.deploySubpath": ".",
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}",
+        ".env{,/**}"
+     ]
+}

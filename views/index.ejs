@@ -1,0 +1,147 @@
+<!-- <!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Express • TodoMVC</title>
+		<link rel="stylesheet" href="/css/base.css">
+		<link rel="stylesheet" href="/css/index.css">
+		<link rel="stylesheet" href="/css/app.css">
+	</head>
+	<body>
+		<section class="todoapp">
+			<nav class="nav">
+				<ul>
+					<li class="user"><%= user.name || user.username %></li>
+					<li>
+						<form action="/logout" method="post">
+							<button class="logout" type="submit">Sign out</button>
+							<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+						</form>
+					</li>
+				</ul>
+			</nav>
+			<header class="header">
+				<h1>todos</h1>
+				<form action="/" method="post">
+					<input class="new-todo" name="title" placeholder="What needs to be done?" autofocus>
+					<% if (filter) { %>
+					<input type="hidden" name="filter" value="<%= filter %>"/>
+					<% } %>
+					<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+				</form>
+			</header>
+			<% if (activeCount + completedCount > 0) { %>
+			<section class="main">
+				<form action="/toggle-all" method="post">
+					<input id="toggle-all" class="toggle-all" type="checkbox" name="completed" <%- activeCount == 0 ? 'checked' : '' %> onchange="this.form.submit();">
+					<label for="toggle-all">Mark all as complete</label>
+					<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+				</form>
+				<ul class="todo-list">
+					<% todos.forEach(function(todo) { %>
+					<li <%- todo.completed ? 'class="completed"' : '' %>>
+						<form action="<%= todo.url %>" method="post">
+							<div class="view">
+								<input class="toggle" type="checkbox" name="completed" <%- todo.completed ? 'checked' : '' %> onchange="this.form.submit();">
+								<label ondblclick="this.closest('li').className = this.closest('li').className + ' editing'; this.closest('li').querySelector('input.edit').focus(); this.closest('li').querySelector('input.edit').value = ''; this.closest('li').querySelector('input.edit').value = '<%= todo.title %>';"><%= todo.title %></label>
+								<button class="destroy" form="delete-<%= todo.id %>"></button>
+							</div>
+							<input class="edit" name="title" value="<%= todo.title %>" onkeyup="if (event.keyCode == 27) { this.setAttribute('data-esc', ''); this.closest('li').className = this.closest('li').className.replace('editing', ''); }" onblur="if (this.getAttribute('data-esc') !== null) { return this.removeAttribute('data-esc'); } this.form.submit();">
+							<% if (filter) { %>
+							<input type="hidden" name="filter" value="<%= filter %>"/>
+							<% } %>
+							<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+						</form>
+						<form id="delete-<%= todo.id %>" action="<%= todo.url %>/delete" method="post">
+							<% if (filter) { %>
+							<input type="hidden" name="filter" value="<%= filter %>"/>
+							<% } %>
+							<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+						</form>
+					</li>
+					<% }); %>
+				</ul>
+			</section>
+			<% } %>
+			<% if (activeCount + completedCount > 0) { %>
+			<footer class="footer">
+				<span class="todo-count"><strong><%= activeCount %></strong> <%= pluralize('item', activeCount) %> left</span>
+				<ul class="filters">
+					<li>
+						<a <%- !filter ? 'class="selected"' : '' %> href="/">All</a>
+					</li>
+					<li>
+						<a <%- filter == 'active' ? 'class="selected"' : '' %> href="/active">Active</a>
+					</li>
+					<li>
+						<a <%- filter == 'completed' ? 'class="selected"' : '' %> href="/completed">Completed</a>
+					</li>
+				</ul>
+				<% if (completedCount > 0) { %>
+				<form action="/clear-completed" method="post">
+					<button class="clear-completed">Clear completed</button>
+					<% if (filter) { %>
+					<input type="hidden" name="filter" value="<%= filter %>"/>
+					<% } %>
+					<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+				</form>
+				<% } %>
+			</footer>
+			<% } %>
+		</section>
+		<footer class="info">
+			<p>Double-click to edit a todo</p>
+			<p>Created by <a href="https://www.jaredhanson.me">Jared Hanson</a></p>
+			<p>Part of <a href="https://todomvc.com">TodoMVC</a></p>
+			<p>Authentication powered by <a href="https://www.passportjs.org">Passport</a></p>
+		</footer>
+	</body>
+</html> -->
+
+<!doctype html>
+<html lang="en" class="h-100">
+
+<head>
+	<meta charset="utf-8">
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.98.0"> -->
+	<title>Diabetes Diary</title>
+
+	<link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/cover/">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+
+<body class="d-flex h-100 text-center text-white bg-dark">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+		crossorigin="anonymous"></script>
+	<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+		<div class="container">
+			<header class="d-flex flex-wrap justify-content-center py-3 mb-4">
+				<h1>Diabetes Diary</h1>
+				<div class="col-md-3 text-end">
+					<form action="/logout" method="post">
+						<button class="btn btn-light px-3" type="submit">Sign out</button>
+						<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+					</form>
+				</div>
+			</header>
+		</div>
+
+		<main class="px-3">
+			Welcome, <%= user.name || user.username %>
+		</main>
+
+		<footer class="mt-auto text-white-50">
+			<p>Rachel Finucane C18735641</p>
+			<p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a
+					href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
+		</footer>
+	</div>
+</body>
+
+</html>
