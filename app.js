@@ -8,33 +8,8 @@ var session = require('express-session');
 var csrf = require('csurf');
 var passport = require('passport');
 var logger = require('morgan');
-// const redis = require("redis");
 const Redis = require('ioredis');
 const redisStore = require("connect-redis")(session);
-
-// pass the session to the connect sqlite3 module
-// allowing it to inherit from session.Store
-// var SQLiteStore = require('connect-sqlite3')(session);
-
-// const client = redis.createClient(
-//   process.env['REDIS_PORT'],
-//   process.env['REDIS_HOST'],
-//   {
-//     auth_pass: 'ZJW7oSfyWxi35rSx1Wj9qE5MiqFHnOZ7IAzCaIsZlds=',
-//     db: 0,
-//   }
-// );
-
-// const client = redis.createClient(
-//   {
-//     port: process.env['REDIS_PORT'],
-//     host: process.env['REDIS_HOST'],
-//     auth_pass: process.env['REDIS_PASSWORD']
-//   });
-
-// client.on('error', err => {
-//   console.log('Error ' + err);
-// });
 
 const client = new Redis({
   host: process.env['REDIS_HOST'],
@@ -58,14 +33,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(express.static(path.join(__dirname, 'views')));
-
-// app.use(session({
-//   secret: 'keyboard cat',
-//   resave: false, // don't save session if unmodified
-//   saveUninitialized: false, // don't create session until something stored
-//   store: new SQLiteStore({ db: 'sessions.db', dir: './var/db' }) // todo: replace with redis cache
-// }));
 
 app.use(
   session({
@@ -111,6 +78,5 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
 
 module.exports = app;
