@@ -21,16 +21,16 @@ async function getFederatedCredentials(issuer, profile) {
 async function getUserById(userId) {
     let pool = await sql.connect(connectionString);
     let result = await pool.request()
-        .input('UserId', sql.UniqueIdentifier, userId)
-        .query('SELECT * FROM Users WHERE UserId = @UserId');
+        .input('userId', sql.UniqueIdentifier, userId)
+        .query('SELECT * FROM Users WHERE userId = @userId');
     return result.recordsets[0][0];
 }
 
 async function userExists(userId) {
     let pool = await sql.connect(connectionString);
     let result = await pool.request()
-        .input('UserId', sql.UniqueIdentifier, userId)
-        .query('SELECT * FROM Users WHERE UserId = @UserId');
+        .input('userId', sql.UniqueIdentifier, userId)
+        .query('SELECT * FROM Users WHERE userId = @userId');
     console.log("get user ", result);
     return result.rowsAffected[0] > 0;
 }
@@ -41,19 +41,19 @@ async function addUser(issuer, profile) {
         .input('Username', sql.VarChar, profile.displayName)
         // https://stackoverflow.com/questions/36745952/node-mssql-transaction-insert-returning-the-inserted-id
         // For returning the inserted ID
-        .query('INSERT INTO Users (username) OUTPUT inserted.UserId VALUES (@username)');
+        .query('INSERT INTO Users (username) OUTPUT inserted.userId VALUES (@username)');
 
     console.log("add user ", result);
-    return (result.recordsets[0][0].UserId);
+    return (result.recordsets[0][0].userId);
 }
 
 async function addFederatedCredentials(issuer, profile, userId) {
     let pool = await sql.connect(connectionString);
     let result = await pool.request()
-        .input('UserId', sql.UniqueIdentifier, userId)
+        .input('userId', sql.UniqueIdentifier, userId)
         .input('Provider', sql.VarChar, issuer)
         .input('Subject', sql.VarChar, profile.id)
-        .query('INSERT INTO FederatedCredentials (UserId, Provider, Subject) VALUES (@UserId, @Provider, @Subject)')
+        .query('INSERT INTO FederatedCredentials (userId, Provider, Subject) VALUES (@userId, @Provider, @Subject)')
     console.log("add fed ", result);
 }
 
