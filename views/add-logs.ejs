@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" class="h-100">
+
+<head>
+	<meta charset="utf-8">
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.98.0"> -->
+	<title>Diabetes Diary</title>
+
+	<link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/cover/">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+
+<body class="d-flex h-100 text-center ">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+		crossorigin="anonymous"></script>
+	<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+		<div class="container">
+			<header class="d-flex flex-wrap justify-content-center pt-3 pb-1 mb-4">
+				<h1>Diabetes Diary</h1>
+				<div class="col-md-5 px-3 text-end">
+					<form action="/logout" method="post">
+						<button class="btn btn-light px-3" type="submit">Sign out</button>
+						<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+					</form>
+				</div>
+			</header>
+		</div>
+
+		<main class="container">
+			<div class="row pb-5">
+				<h3 class="mb-6">Add New Log</h3>
+				<div class="col">
+					<label for="exampleFormControlInput1" class="form-label">Date</label>
+					<input type="date" class="form-control" id="exampleFormControlInput1"
+						placeholder="name@example.com">
+				</div>
+				<div class="col">
+					<label for="exampleFormControlInput1" class="form-label">Time</label>
+					<input type="time" class="form-control" id="exampleFormControlInput1"
+						placeholder="name@example.com">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-6 p-2">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Blood Sugar</h5>
+							<div class="input-group mb-3">
+								<input type="number" step="0.1" class="form-control" placeholder="e.g. 5.5"
+									aria-label="Recipient's username" aria-describedby="basic-addon2">
+								<span class="input-group-text" id="basic-addon2">mmol/mol</span>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 p-2">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Meal</h5>
+							<!-- <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> -->
+							<!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 p-2">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Insulin</h5>
+							<div class="row g-3">
+								<select class="col form-select" aria-label="Default select example">
+									<option selected>Novorapid</option>
+									<option value="1">Levemir</option>
+									<option value="2">Fiasp</option>
+									<option value="3">Lantus</option>
+								</select>
+								<div class="col">
+									<input type="text" class="form-control" placeholder="Amount" aria-label="Last name">
+								</div>
+							</div>
+
+							<!-- <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> -->
+							<!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<footer class="mt-auto text-white-50">
+			<p>Rachel Finucane C18735641</p>
+			<p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a
+					href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
+		</footer>
+	</div>
+</body>
+
+</html>

@@ -33,10 +33,10 @@
 
 		<main class="px-3">
 			Welcome, <%= user.name || user.username %>
-			<section>
-			<button class="btn btn-light px-3" type="submit">Add Log</button>
-			<button class="btn btn-light px-3" type="submit">View Logs</button>
-			</section>
+				<section>
+					<a href="/add-logs" class="btn btn-light px-3" role="button" aria-disabled="true">Add Log</a>
+					<a href="#" class="btn btn-light px-3" role="button" aria-disabled="true">View Logs</a>
+				</section>
 
 		</main>
 

@@ -19,6 +19,7 @@ const client = new Redis({
 
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
+let createLogsRouter = require('./routes/add-logs');
 
 var app = express();
 
@@ -62,6 +63,7 @@ app.use(function (req, res, next) {
 
 app.use('/', indexRouter);
 app.use('/', authRouter);
+app.use('/', createLogsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
