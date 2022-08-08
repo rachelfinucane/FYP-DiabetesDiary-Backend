@@ -39,6 +39,8 @@ async function addUser(issuer, profile) {
     let pool = await sql.connect(connectionString);
     let result = await pool.request()
         .input('Username', sql.VarChar, profile.displayName)
+        // https://stackoverflow.com/questions/36745952/node-mssql-transaction-insert-returning-the-inserted-id
+        // For returning the inserted ID
         .query('INSERT INTO Users (username) OUTPUT inserted.UserId VALUES (@username)');
 
     console.log("add user ", result);
