@@ -14,15 +14,17 @@
 		integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
 </head>
 
-<body class="d-flex h-100 text-center text-white bg-dark">
+<body class="d-flex h-100 text-center">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
 		crossorigin="anonymous"></script>
 	<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
 		<div class="container">
-			<header class="d-flex flex-wrap justify-content-center py-3 mb-4">
-				<h1>Diabetes Diary</h1>
-				<div class="col-md-3 text-end">
+			<header class="d-flex flex-wrap justify-content-center border-bottom py-3 mb-4">
+				<a href="/" class="d-flex mb-3 px-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+					<span class="fs-4">Diabetes Diary</span>
+				</a>
+				<div class="col-md-3 px-3 text-end">
 					<form action="/logout" method="post">
 						<button class="btn btn-light px-3" type="submit">Sign out</button>
 						<input type="hidden" name="_csrf" value="<%= csrfToken %>">

@@ -20,9 +20,11 @@
 		crossorigin="anonymous"></script>
 	<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
 		<div class="container">
-			<header class="d-flex flex-wrap justify-content-center pt-3 pb-1 mb-4">
-				<h1>Diabetes Diary</h1>
-				<div class="col-md-5 px-3 text-end">
+			<header class="d-flex flex-wrap justify-content-center border-bottom py-3 mb-4">
+				<a href="/" class="d-flex mb-3 px-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+					<span class="fs-4">Diabetes Diary</span>
+				</a>
+				<div class="col-md-3 px-3 text-end">
 					<form action="/logout" method="post">
 						<button class="btn btn-light px-3" type="submit">Sign out</button>
 						<input type="hidden" name="_csrf" value="<%= csrfToken %>">
