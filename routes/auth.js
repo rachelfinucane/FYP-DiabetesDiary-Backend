@@ -12,21 +12,21 @@ const { verifyUser, getUser } = require('../services/auth_service')
 // with a user object, which will be set at `req.user` in route handlers after
 // authentication.
 passport.use(new GoogleStrategy({
-  clientID: process.env['GOOGLE_CLIENT_ID'],
-  clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-  callbackURL: '/oauth2/redirect/google',
-  scope: ['profile']
+    clientID: process.env['GOOGLE_CLIENT_ID'],
+    clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
+    callbackURL: '/oauth2/redirect/google',
+    scope: ['profile']
 }, async (issuer, profile, cb) => {
-  try {
-    let user = await verifyUser(issuer, profile);
-    return cb(null, user);
-  }
-  catch (err) {
-    console.log(err);
-    return cb(err);
-  }
+    try {
+        let user = await verifyUser(issuer, profile);
+        return cb(null, user);
+    }
+    catch (err) {
+        console.log(err);
+        return cb(err);
+    }
 
-})); 
+}));
 
 // Configure Passport authenticated session persistence.
 //
@@ -38,22 +38,22 @@ passport.use(new GoogleStrategy({
 // example does not have a database, the complete Facebook profile is serialized
 // and deserialized.
 passport.serializeUser(function (user, cb) {
-  console.log(user);
-  process.nextTick(function () {
-    cb(null, { id: user.userId });
-  });
+    console.log(user);
+    process.nextTick(function () {
+        cb(null, { id: user.userId });
+    });
 });
 
 passport.deserializeUser(async function (user, cb) {
-  console.log(user);
-  process.nextTick(async function () {
-    let fullUserDetails = await getUser(user.id);
-    if (fullUserDetails) {
-      return cb(null, fullUserDetails);
-    } else {
-      return cb(null, false);
-    }
-  });
+    console.log(user);
+    process.nextTick(async function () {
+        let fullUserDetails = await getUser(user.id);
+        if (fullUserDetails) {
+            return cb(null, fullUserDetails);
+        } else {
+            return cb(null, false);
+        }
+    });
 });
 
 
@@ -68,7 +68,7 @@ var router = express.Router();
  * will be sent to the `GET /login/federated/accounts.google.com` route.
  */
 router.get('/login', function (req, res, next) {
-  res.render('login');
+    res.render('login');
 });
 
 /* GET /login/federated/accounts.google.com
@@ -92,8 +92,8 @@ router.get('/login/federated/google', passport.authenticate('google'));
     user returns, they are signed in to their linked account.
 */
 router.get('/oauth2/redirect/google', passport.authenticate('google', {
-  successReturnToOrRedirect: '/',
-  failureRedirect: '/login'
+    successReturnToOrRedirect: '/',
+    failureRedirect: '/login'
 }));
 
 /* POST /logout
@@ -101,10 +101,10 @@ router.get('/oauth2/redirect/google', passport.authenticate('google', {
  * This route logs the user out.
  */
 router.post('/logout', function (req, res, next) {
-  req.logout(function (err) {
-    if (err) { return next(err); }
-    res.redirect('/');
-  });
+    req.logout(function (err) {
+        if (err) { return next(err); }
+        res.redirect('/');
+    });
 });
 
 module.exports = router;
