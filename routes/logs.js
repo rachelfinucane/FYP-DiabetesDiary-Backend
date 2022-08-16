@@ -1,7 +1,7 @@
 var express = require('express');
 var ensureLogIn = require('connect-ensure-login').ensureLoggedIn;
 
-const { addLog } = require('../services/service_logs.js')
+const { addLog, getLogs } = require('../services/service_logs.js')
 
 var ensureLoggedIn = ensureLogIn();
 
@@ -30,10 +30,10 @@ router.get('/view-logs', function (req, res, next) {
 });
 
 /* GET logs */
-router.get('/logs', [userAuthCheck], function(req, res, next) {
+router.get('/logs', [userAuthCheck], async function(req, res, next) {
     console.log(req.user.userId);
-    res.json({ok:200});
-    // getLogs(req.user.userId);
+    let logs = await getLogs(req.user.userId);
+    res.json(logs);
 });
 
 /* POST logs */

@@ -1,11 +1,11 @@
-const { handleInsertLog } = require('../models/models_logs.js')
+const { handleInsertLog, handleSelectLogs } = require('../models/models_logs.js')
 
 function addLog(logInput) {
 
     let newLog = {
-        userId:logInput.userId,
-        time:logInput.timeInput,
-        date:logInput.dateInput,
+        userId: logInput.userId,
+        time: logInput.timeInput,
+        date: logInput.dateInput,
         meal: {
             mealName: logInput.mealNameInput,
             mealWeight: logInput.mealWeightInput,
@@ -21,4 +21,17 @@ function addLog(logInput) {
     handleInsertLog(newLog);
 }
 
-module.exports = { addLog };
+async function getLogs(userId) {
+    let logs = await handleSelectLogs(userId);
+    return {
+        logTime: logs.logTime,
+        bloodSugar: logs.Value,
+        insulinUnits: logs.units,
+        insulinType: logs.type,
+        totalCarbs: logs.totalCarbs,
+        mealName: logs.mealName,
+        mealWeight: logs.mealWeight
+    };
+}
+
+module.exports = { addLog, getLogs };

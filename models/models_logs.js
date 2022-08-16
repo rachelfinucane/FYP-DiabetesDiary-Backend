@@ -115,4 +115,18 @@ async function handleInsertLog(newLog) {
     }
 }
 
-module.exports = { handleInsertLog };
+async function handleSelectLogs(userId) {
+    const pool = await poolAsync;
+    const queryString = 'SELECT * FROM Log l ' +
+        'JOIN BloodSugar b ON (l.bloodSugarId = b.bloodSugarId) ' +
+        'JOIN InsulinTaken i ON (l.insulinTakenId = i.insulinTakenId) ' +
+        'JOIN Meal m ON (l.mealId = m.mealId) ' +
+        'WHERE userId = @userId';
+
+    let result = await pool.request()
+        .input('userId', sql.UniqueIdentifier, userId)
+        .query(queryString);
+    return result.recordsets[0][0];
+}
+
+module.exports = { handleInsertLog, handleSelectLogs };
