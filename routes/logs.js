@@ -29,19 +29,23 @@ router.get('/view-logs', function (req, res, next) {
     res.render('view-logs', { user: req.user });
 });
 
+/* GET logs */
+router.get('/logs', [userAuthCheck], function(req, res, next) {
+    console.log(req.user.userId);
+    res.json({ok:200});
+    // getLogs(req.user.userId);
+});
+
 /* POST logs */
 router.post('/logs', [userAuthCheck], function (req, res, next) {
-    console.log("\n\n\n********************", req.body);
-    
+    console.log(req.body);
     let newLog = req.body;
     delete newLog._csrf;
-
     newLog.userId = req.user.userId;
 
     addLog(newLog);
 
-    res.render('logs');
-
+    res.render('view-logs');
 });
 
 module.exports = router;
