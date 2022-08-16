@@ -21,12 +21,12 @@ router.get('/add-logs', [userAuthCheck], function (req, res, next) {
 });
 
 /* GET logs page. */
-router.get('/logs', function (req, res, next) {
+router.get('/view-logs', function (req, res, next) {
     if (!req.user) { return res.render('home'); }
     next();
 }, function (req, res, next) {
     res.locals.filter = null;
-    res.render('logs', { user: req.user });
+    res.render('view-logs', { user: req.user });
 });
 
 /* POST logs */
