@@ -1,6 +1,8 @@
 var express = require('express');
 var ensureLogIn = require('connect-ensure-login').ensureLoggedIn;
 
+const { addLog } = require('../services/service_logs.js')
+
 var ensureLoggedIn = ensureLogIn();
 
 var router = express.Router();
@@ -12,15 +14,6 @@ let userAuthCheck = function (req, res, next) {
     }
     next();
 }
-
-/* GET add-logs page. */
-// router.get('/add-logs', function(req, res, next) {
-//   if (!req.user) { return res.render('home'); }
-//   next();
-// }, function(req, res, next) {
-//   res.locals.filter = null;
-//   res.render('add-logs', { user: req.user });
-// });
 
 router.get('/add-logs', [userAuthCheck], function (req, res, next) {
     res.locals.filter = null;
@@ -36,18 +29,19 @@ router.get('/logs', function (req, res, next) {
     res.render('logs', { user: req.user });
 });
 
-/* GET logs page. */
-router.post('/logs', function (req, res, next) {
-    if (!req.user) { return res.render('home'); }
-    next();
-}, function (req, res, next) {
-    console.log(req);
-    res.render('logs');
-});
-
 /* POST logs */
-router.post('/logs', ensureLoggedIn, function (req, res, next) {
-    console.log(req);
+router.post('/logs', [userAuthCheck], function (req, res, next) {
+    console.log("\n\n\n********************", req.body);
+    
+    let newLog = req.body;
+    delete newLog._csrf;
+
+    newLog.userId = req.user.userId;
+
+    addLog(newLog);
+
+    res.render('logs');
+
 });
 
 module.exports = router;

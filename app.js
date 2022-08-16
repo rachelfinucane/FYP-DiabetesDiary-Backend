@@ -17,11 +17,11 @@ const client = new Redis({
     password: process.env['REDIS_PASSWORD']
 });
 
-let indexRouter = require('./routes/index');
-let authRouter = require('./routes/auth');
-let logsRouter = require('./routes/logs');
+const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
+const logsRouter = require('./routes/logs');
 
-let app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

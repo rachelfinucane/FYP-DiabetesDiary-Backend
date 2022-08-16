@@ -1,7 +1,7 @@
 var express = require('express');
 var passport = require('passport');
 var GoogleStrategy = require('passport-google-oidc');
-const { verifyUser, getUser } = require('../services/auth_service')
+const { verifyUser, getUser } = require('../services/service_users')
 
 
 // Configure the Google strategy for use by Passport.
