@@ -1,3 +1,7 @@
+// Some of the 'album' page layout is taken from 
+// the Bootstrap Docs Examples
+// https://getbootstrap.com/docs/5.2/examples/album/
+
 window.addEventListener('load', (event) => {
     // Some boilerplate taken from here:
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
@@ -39,13 +43,15 @@ function addOuterCard(logTime, index) {
     let time = new Date(Date.parse(logTime));
     let timeString = time.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
 
-    return `<div class="card col-md-4" id="card-${index}">
-                <div class="card-body" id="card-body-${index}">
-                    <h5 class="card-title">${timeString}</h5>
-                    <div class="mb-3" id="inner-card-div-${index}">
+    return `<div class="col">
+                <div class="card shadow-sm" id="card-${index}">
+                    <div class="card-body" id="card-body-${index}">
+                        <h5 class="card-title">${timeString}</h5>
+                        <div class="mb-3" id="inner-card-div-${index}"></div>
                     </div>
                 </div>
             </div>`;
+
 }
 
 function addBloodSugar(bloodSugar, index) {

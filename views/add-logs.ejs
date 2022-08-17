@@ -19,7 +19,7 @@
 
     <script type="text/javascript" src="../scripts/add-logs.js"></script>
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-        <div class="container">
+        <!-- <div class="container">
             <header class="d-flex flex-wrap justify-content-center border-bottom py-3 mb-4">
                 <a href="/" class="d-flex mb-3 px-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                     <span class="fs-4">Diabetes Diary</span>
@@ -31,12 +31,13 @@
                     </form>
                 </div>
             </header>
-        </div>
+        </div> -->
+        <%- include('header') %>
 
         <main class="container">
             <form action="/logs" method="post" id="log-form">
-                <div class="row pb-5">
-                    <h3 class="mb-6">Add New Log</h3>
+                <div class="row pb-2">
+                    <h3 class="pb-2 mb-6">Add New Log</h3>
                     <div class="col">
                         <label for="date-input" class="form-label">Date</label>
                         <input type="date" class="form-control" id="date-input" name="dateInput">
@@ -48,7 +49,7 @@
                 </div>
                 <div class="row">
                     <div class="card-group py-4">
-                        <div class="card">
+                        <div class="card shadow-sm">
                             <div class="card-body">
                                 <h5 class="card-title">Blood Sugar</h5>
                                 <div class="input-group mb-3">
@@ -59,7 +60,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card">
+                        <div class="card shadow-sm">
                             <div class="card-body">
                                 <h5 class="card-title">Meal</h5>
                                 <div class="col py-2">
@@ -75,7 +76,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card">
+                        <div class="card shadow-sm">
                             <div class="card-body">
                                 <h5 class="card-title">Insulin</h5>
                                 <div class="row g-3">
@@ -103,14 +104,15 @@
             </form>
         </main>
 
-        <footer class="border-top fs-6 mt-auto">
+        <!-- <footer class="border-top fs-6 mt-auto">
             <small>
                 <p>Rachel Finucane C18735641</p>
-                <p>This is an academic project and not medical software</p>
+                <p>This is an academic project and not medical software</p> -->
                 <!-- <p>Cover template for <a href="https://getbootstrap.com/" class="text-black">Bootstrap</a>, by <a
                         href="https://twitter.com/mdo" class="text-black">@mdo</a>.</p> -->
-            </small>
-        </footer>
+            <!-- </small>
+        </footer> -->
+        <%- include('footer') %>
     </div>
 </body>
 
