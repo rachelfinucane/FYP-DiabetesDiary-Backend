@@ -126,7 +126,7 @@ async function handleSelectLogs(userId) {
     let result = await pool.request()
         .input('userId', sql.UniqueIdentifier, userId)
         .query(queryString);
-    return result.recordsets[0][0];
+    return result.recordsets[0];
 }
 
 module.exports = { handleInsertLog, handleSelectLogs };

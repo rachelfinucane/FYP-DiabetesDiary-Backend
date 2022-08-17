@@ -22,16 +22,7 @@ function addLog(logInput) {
 }
 
 async function getLogs(userId) {
-    let logs = await handleSelectLogs(userId);
-    return {
-        logTime: logs.logTime,
-        bloodSugar: logs.Value,
-        insulinUnits: logs.units,
-        insulinType: logs.type,
-        totalCarbs: logs.totalCarbs,
-        mealName: logs.mealName,
-        mealWeight: logs.mealWeight
-    };
+    return await handleSelectLogs(userId);
 }
 
 module.exports = { addLog, getLogs };
