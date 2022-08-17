@@ -43,7 +43,7 @@ function addOuterCard(logTime, index) {
     let time = new Date(Date.parse(logTime));
     let timeString = time.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
 
-    return `<div class="col">
+    return `<div class="col mx-auto">
                 <div class="card shadow-sm" id="card-${index}">
                     <div class="card-body" id="card-body-${index}">
                         <h5 class="card-title">${timeString}</h5>

@@ -2,51 +2,27 @@
 <html lang="en" class="h-100">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Hugo 0.98.0"> -->
-    <title>Diabetes Diary</title>
-
-    <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/cover/">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <%- include('head') %>
 </head>
 
 <body class="d-flex h-100 text-center">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
         crossorigin="anonymous"></script>
-    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-        <header class="d-flex flex-wrap justify-content-center border-bottom py-3 mb-4">
-            <a href="/" class="d-flex mb-3 px-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-                <span class="fs-4">Diabetes Diary</span>
-            </a>
-            <!-- <div class="col-md-3 px-3 text-end">
-                <form action="/logout" method="post">
-                    <button class="btn btn-dark px-3" type="submit">Sign out</button>
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                </form>
-            </div> -->
-        </header>
+    <div class="cover-container d-flex w-100 h-100 mx-auto flex-column">
 
-        <main class="px-3">
-            <p class="lead">An app for managing Diabetes</p>
-            <p class="lead">
-                <a href="/login" class="btn btn-lg btn-outline-dark fw-bold ">Login</a>
-            </p>
-        </main>
+        <%- include('header') %>
 
-        <footer class="border-top fs-6 mt-auto">
-            <small>
-                <p>Rachel Finucane C18735641</p>
-                <p>This is an academic project and not medical software</p>
-                <!-- <p>Cover template for <a href="https://getbootstrap.com/" class="text-black">Bootstrap</a>, by <a
-                        href="https://twitter.com/mdo" class="text-black">@mdo</a>.</p> -->
-            </small>
-        </footer>
+            <main class="py-3">
+                <h1 class="display-2 pt-5 pb-3">Diabetes Diary</h1>
+                <p class="lead">An app for managing Diabetes</p>
+                <p class="lead">
+                    <a href="/login" class="btn btn-lg btn-outline-dark fw-bold ">Login</a>
+                </p>
+            </main>
+
+            <%- include('footer') %>
+
     </div>
 </body>
 

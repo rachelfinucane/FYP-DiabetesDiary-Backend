@@ -9,8 +9,8 @@ var router = express.Router();
 
 let userAuthCheck = function (req, res, next) {
     if (!req.user) {
-        console.log("Auth check failed. Redirecting to home.");
-        return res.render('home');
+        console.log("Auth check failed. Redirecting to login.");
+        return res.render('login');
     }
     next();
 }
