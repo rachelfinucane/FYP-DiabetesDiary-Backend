@@ -21,17 +21,14 @@ router.get('/add-logs', [userAuthCheck], function (req, res, next) {
 });
 
 /* GET logs page. */
-router.get('/view-logs', function (req, res, next) {
-    if (!req.user) { return res.render('home'); }
-    next();
-}, function (req, res, next) {
+router.get('/view-logs', [userAuthCheck], function (req, res, next) {
     res.locals.filter = null;
     res.render('view-logs', { user: req.user });
 });
 
 /* GET logs */
 router.get('/logs', [userAuthCheck], async function(req, res, next) {
-    console.log(req.user.userId);
+    res.locals.filter = null;
     let logs = await getLogs(req.user.userId);
     res.json(logs);
 });
@@ -45,7 +42,7 @@ router.post('/logs', [userAuthCheck], function (req, res, next) {
 
     addLog(newLog);
 
-    res.render('view-logs');
+    res.redirect(200, '/view-logs');
 });
 
 module.exports = router;
