@@ -11,7 +11,7 @@ function addLog(logInput) {
             mealWeight: logInput.mealWeightInput,
             totalCarbs: logInput.carbsInput
         },
-        bloodSugar: logInput.bloodSugarInput,
+        bloodSugar: { value: logInput.bloodSugarInput },
         insulinList: {
             insulinType: logInput.insulinTypeInput,
             units: logInput.insulinUnitsInput
@@ -22,7 +22,24 @@ function addLog(logInput) {
 }
 
 async function getLogs(userId) {
-    return await handleSelectLogs(userId);
+    let logs = await handleSelectLogs(userId);
+    return logs.map(log => {
+        return {
+            logTime: log.logTime,
+            meal: {
+                ...(log.mealName && { mealName: log.mealName }),
+                ...(log.mealWeight && { mealWeight: log.mealWeight }),
+                ...(log.totalCarbs && { totalCarbs: log.totalCarbs })
+            },
+            bloodSugar: {
+                ...(log.Value && { value: log.Value })
+            },
+            insulinList: {
+                ...(log.type && { insulinType: log.type }),
+                ...(log.units && { units: log.units })
+            }
+        }
+    });
 }
 
 module.exports = { addLog, getLogs };

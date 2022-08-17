@@ -2,10 +2,10 @@ const { sql, poolAsync } = require('./db');
 const { objectNotEmpty } = require('../helpers/helpers');
 
 const insertBloodSugar = async (request, bloodSugar) => {
-    if (bloodSugar) {
+    if (bloodSugar.value) {
         console.log("Inserting blood sugar");
 
-        request.input("value", sql.Decimal(4, 1), parseFloat(bloodSugar));
+        request.input("value", sql.Decimal(4, 1), parseFloat(bloodSugar.value));
         const result = await request.query("INSERT INTO BloodSugar (Value) OUTPUT inserted.bloodSugarId VALUES (@value)");
 
         return result.recordsets[0][0].bloodSugarId;
@@ -118,9 +118,9 @@ async function handleInsertLog(newLog) {
 async function handleSelectLogs(userId) {
     const pool = await poolAsync;
     const queryString = 'SELECT * FROM Log l ' +
-        'JOIN BloodSugar b ON (l.bloodSugarId = b.bloodSugarId) ' +
-        'JOIN InsulinTaken i ON (l.insulinTakenId = i.insulinTakenId) ' +
-        'JOIN Meal m ON (l.mealId = m.mealId) ' +
+        'LEFT JOIN BloodSugar b ON (l.bloodSugarId = b.bloodSugarId) ' +
+        'LEFT JOIN InsulinTaken i ON (l.insulinTakenId = i.insulinTakenId) ' +
+        'LEFT JOIN Meal m ON (l.mealId = m.mealId) ' +
         'WHERE userId = @userId';
 
     let result = await pool.request()
