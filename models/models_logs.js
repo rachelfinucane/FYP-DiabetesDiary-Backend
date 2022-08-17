@@ -121,7 +121,8 @@ async function handleSelectLogs(userId) {
         'LEFT JOIN BloodSugar b ON (l.bloodSugarId = b.bloodSugarId) ' +
         'LEFT JOIN InsulinTaken i ON (l.insulinTakenId = i.insulinTakenId) ' +
         'LEFT JOIN Meal m ON (l.mealId = m.mealId) ' +
-        'WHERE userId = @userId';
+        'WHERE userId = @userId ' +
+        'ORDER BY l.logTime DESC';
 
     let result = await pool.request()
         .input('userId', sql.UniqueIdentifier, userId)

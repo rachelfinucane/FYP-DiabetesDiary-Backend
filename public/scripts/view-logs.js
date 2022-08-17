@@ -25,10 +25,49 @@ async function fetchLogs(url) {
         method: 'GET',
         mode: 'same-origin'
     });
-    return response.json(); 
+    return response.json();
 }
 
-function displayData(singleLog) {
+function displayData(singleLog, index) {
     cardGroup = document.getElementById('log-display-card-group');
+
+    let newCard = document.createElement('div');
+    newCard.className = 'card-body';
+    newCard.id = 'card ' + index;
+    newCard.id = `card-${index}`;
+
+    let time = new Date(Date.parse(singleLog.logTime));
+    console.log(typeof time);
+    let timeString = time.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    let timeHeader = document.createElement('h5');
+    timeHeader.className = 'card-title';
+    timeHeader.innerHTML = timeString;
+
+    newCard.appendChild(timeHeader);
+    cardGroup.appendChild(newCard);
+
+    // <div class="card">
+    //     <div class="card-body">
+    //         <h5 class="card-title">9th Aug 2022 @ 21:00</h5>
+    //         <div class="mb-3">
+    //             <div class="input-group mb-3">
+    //                 <input class="form-control" type="text" value="6.7"
+    //                     aria-label="Disabled input example" disabled readonly>
+    //                     <span class="input-group-text" id="basic-addon2">mmol/mol</span>
+    //             </div>
+    //             <div class="input-group mb-3">
+    //                 <span class="input-group-text" id="basic-addon2">Dinner</span>
+    //                 <input class="form-control" type="text" value="50"
+    //                     aria-label="Disabled input example" disabled readonly>
+    //                     <span class="input-group-text" id="basic-addon2">grams Carbs</span>
+    //             </div>
+    //             <div class="input-group mb-3">
+    //                 <input class="form-control" type="text" value="6.5"
+    //                     aria-label="Disabled input example" disabled readonly>
+    //                     <span class="input-group-text" id="basic-addon2">Units Novorapid</span>
+    //             </div>
+    //         </div>
+    //     </div>
+    // </div>
 }
 

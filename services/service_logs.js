@@ -21,12 +21,30 @@ function addLog(logInput) {
     handleInsertLog(newLog);
 }
 
+/**
+ * 
+ * @param userId 
+ * @returns array of logs
+ * 
+ * Gets the logs relating to the specified user.
+ * Formats and returns the data in a usable way.
+ * Each log object contains the time, 
+ * and a child object each for meal, bloodSugar,
+ * and insulinList.
+ * 
+ * The child object will be empty if 
+ * there is no data for that object.
+ */
 async function getLogs(userId) {
     let logs = await handleSelectLogs(userId);
     return logs.map(log => {
         return {
             logTime: log.logTime,
             meal: {
+                // ... (condition && { key:value })
+                // inserts object only if not null
+                // meal will be an empty object if all three values are null
+                // https://stackoverflow.com/a/67862983
                 ...(log.mealName && { mealName: log.mealName }),
                 ...(log.mealWeight && { mealWeight: log.mealWeight }),
                 ...(log.totalCarbs && { totalCarbs: log.totalCarbs })
