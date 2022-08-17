@@ -1,14 +1,20 @@
-// From docs: https://www.npmjs.com/package/mssql#promises
-const sql = require('mssql')
+// // From docs: https://www.npmjs.com/package/mssql#promises
+// const sql = require('mssql')
 
-sql.on('error', err => {
-    console.log(err);
-})
+// sql.on('error', err => {
+//     console.log(err);
+// })
 
-const connectionString = "Server=tcp:db-server-diabetes-diary.database.windows.net,1433;Initial Catalog=db-diabetes-diary;Persist Security Info=False;User ID=c18735641;Password=rk-yGH7P*NN*Bk_ajUZd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+// // const connectionString = "Server=tcp:db-server-diabetes-diary.database.windows.net,1433;Initial Catalog=db-diabetes-diary;Persist Security Info=False;User ID=c18735641;Password=rk-yGH7P*NN*Bk_ajUZd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+// const connectionString = process.env['DB_CONNECTION_STRING'];
+
+const {sql, poolAsync } = require('./db');
+
+// const pool = await poolAsync;
 
 async function getFederatedCredentials(issuer, profile) {
-    let pool = await sql.connect(connectionString);
+    // let pool = await sql.connect(connectionString);
+    const pool = await poolAsync;
     let result = await pool.request()
         .input('provider', sql.VarChar, issuer)
         .input('subject', sql.VarChar, profile.id)
@@ -19,7 +25,8 @@ async function getFederatedCredentials(issuer, profile) {
 }
 
 async function getUserById(userId) {
-    let pool = await sql.connect(connectionString);
+    // let pool = await sql.connect(connectionString);
+    const pool = await poolAsync;
     let result = await pool.request()
         .input('userId', sql.UniqueIdentifier, userId)
         .query('SELECT * FROM Users WHERE userId = @userId');
@@ -27,7 +34,8 @@ async function getUserById(userId) {
 }
 
 async function userExists(userId) {
-    let pool = await sql.connect(connectionString);
+    // let pool = await sql.connect(connectionString);
+    const pool = await poolAsync;
     let result = await pool.request()
         .input('userId', sql.UniqueIdentifier, userId)
         .query('SELECT * FROM Users WHERE userId = @userId');
@@ -35,8 +43,9 @@ async function userExists(userId) {
     return result.rowsAffected[0] > 0;
 }
 
-async function addUser(issuer, profile) {
-    let pool = await sql.connect(connectionString);
+async function insertUser(issuer, profile) {
+    // let pool = await sql.connect(connectionString);
+    const pool = await poolAsync;
     let result = await pool.request()
         .input('Username', sql.VarChar, profile.displayName)
         // https://stackoverflow.com/questions/36745952/node-mssql-transaction-insert-returning-the-inserted-id
@@ -47,8 +56,9 @@ async function addUser(issuer, profile) {
     return (result.recordsets[0][0].userId);
 }
 
-async function addFederatedCredentials(issuer, profile, userId) {
-    let pool = await sql.connect(connectionString);
+async function insertFederatedCredentials(issuer, profile, userId) {
+    // let pool = await sql.connect(connectionString);
+    const pool = await poolAsync;
     let result = await pool.request()
         .input('userId', sql.UniqueIdentifier, userId)
         .input('Provider', sql.VarChar, issuer)
@@ -57,4 +67,4 @@ async function addFederatedCredentials(issuer, profile, userId) {
     console.log("add fed ", result);
 }
 
-module.exports = { getFederatedCredentials, getUserById, userExists, addUser, addFederatedCredentials };
+module.exports = { getFederatedCredentials, getUserById, userExists, insertUser, insertFederatedCredentials };

@@ -1,0 +1,51 @@
+<!-- Template from Bootstrap docs, Dark Header (adapted) -->
+<!-- https://getbootstrap.com/docs/5.2/examples/headers/ -->
+<header class="p-3 border-bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-decoration-none">
+                <!-- <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                    <use xlink:href="#bootstrap"></use>
+                </svg> -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="32" fill="black"
+                    class="bi bi-clipboard-heart" viewBox="0 0 16 16" aria-label="Diabetes Diary Logo">
+                    <path fill-rule="evenodd"
+                        d="M5 1.5A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5v-1Zm5 0a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1Z" />
+                    <path
+                        d="M3 1.5h1v1H3a1 1 0 0 0-1 1V14a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3.5a1 1 0 0 0-1-1h-1v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2Z" />
+                    <path d="M8 6.982C9.664 5.309 13.825 8.236 8 12 2.175 8.236 6.336 5.31 8 6.982Z" />
+                </svg>
+            </a>
+
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="/" class="nav-link px-2 text-dark" id="/">Home</a></li>
+                <li><a href="/add-logs" class="nav-link px-2 text-dark" id="/add-logs">Add Log</a></li>
+                <li><a href="/view-logs" class="nav-link px-2 text-dark" id="/view-logs">View Logs</a></li>
+                <li><a href="#" class="nav-link px-2 text-dark" id="#">Recipes</a></li>
+            </ul>
+
+            <div class="text-end">
+                <form <% if (locals.user) { %> action ="/logout" method="post" <% } else { %> action ="/login"
+                        method="get" <% }%> id="logout-form">
+                            <button class="btn btn-dark px-3" type="submit" id="logout-button">
+                                <% if (locals.user) { %>
+                                    Log Out
+                                    <% } else { %>Log In<% }%>
+                            </button>
+                            <input type="hidden" name="_csrf" id="csrf-token" value="<%= csrfToken %>">
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script>
+    window.addEventListener('load', (event) => {
+        // ref: https://developer.mozilla.org/en-US/docs/Web/API/Location/pathname
+        let currentNavLink = document.getElementById(location.pathname);
+        if (currentNavLink) {
+            currentNavLink.classList.remove('text-dark');
+            currentNavLink.classList.add('text-secondary', 'fw-bold');
+        }
+    });
+</script>
