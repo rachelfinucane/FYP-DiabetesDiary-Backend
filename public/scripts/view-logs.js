@@ -1,11 +1,8 @@
 window.addEventListener('load', (event) => {
-    console.log("csrfToken ", document.getElementById('csrf-token').content);
-
     // Some boilerplate taken from here:
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
     fetchLogs('/logs')
         .then((data) => {
-            console.log(data);
             data.forEach(displayData);
         });
 });
@@ -29,45 +26,65 @@ async function fetchLogs(url) {
 }
 
 function displayData(singleLog, index) {
-    cardGroup = document.getElementById('log-display-card-group');
+    let cardGroupContainer = document.getElementById('card-groups-container');
+    cardGroupContainer.innerHTML += addOuterCard(singleLog.logTime, index);
 
-    let newCard = document.createElement('div');
-    newCard.className = 'card-body';
-    newCard.id = 'card ' + index;
-    newCard.id = `card-${index}`;
-
-    let time = new Date(Date.parse(singleLog.logTime));
-    console.log(typeof time);
-    let timeString = time.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
-    let timeHeader = document.createElement('h5');
-    timeHeader.className = 'card-title';
-    timeHeader.innerHTML = timeString;
-
-    newCard.appendChild(timeHeader);
-    cardGroup.appendChild(newCard);
-
-    // <div class="card">
-    //     <div class="card-body">
-    //         <h5 class="card-title">9th Aug 2022 @ 21:00</h5>
-    //         <div class="mb-3">
-    //             <div class="input-group mb-3">
-    //                 <input class="form-control" type="text" value="6.7"
-    //                     aria-label="Disabled input example" disabled readonly>
-    //                     <span class="input-group-text" id="basic-addon2">mmol/mol</span>
-    //             </div>
-    //             <div class="input-group mb-3">
-    //                 <span class="input-group-text" id="basic-addon2">Dinner</span>
-    //                 <input class="form-control" type="text" value="50"
-    //                     aria-label="Disabled input example" disabled readonly>
-    //                     <span class="input-group-text" id="basic-addon2">grams Carbs</span>
-    //             </div>
-    //             <div class="input-group mb-3">
-    //                 <input class="form-control" type="text" value="6.5"
-    //                     aria-label="Disabled input example" disabled readonly>
-    //                     <span class="input-group-text" id="basic-addon2">Units Novorapid</span>
-    //             </div>
-    //         </div>
-    //     </div>
-    // </div>
+    let cardBody = document.getElementById(`inner-card-div-${index}`);
+    cardBody.innerHTML += addBloodSugar(singleLog.bloodSugar, index);
+    cardBody.innerHTML += addMeal(singleLog.meal, index);
+    cardBody.innerHTML += addInsulin(singleLog.insulinList, index);
 }
 
+function addOuterCard(logTime, index) {
+    let time = new Date(Date.parse(logTime));
+    let timeString = time.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+
+    return `<div class="card col-md-4" id="card-${index}">
+                <div class="card-body" id="card-body-${index}">
+                    <h5 class="card-title">${timeString}</h5>
+                    <div class="mb-3" id="inner-card-div-${index}">
+                    </div>
+                </div>
+            </div>`;
+}
+
+function addBloodSugar(bloodSugar, index) {
+    if (objectNotEmpty(bloodSugar)) {
+        return `<div class="input-group mb-3">
+                    <input class="form-control" type="text" value="${bloodSugar.value}"
+                        aria-label="Blood Sugar" aria-describedby="blood-sugar-units-${index}" disabled readonly>
+                        <span class="input-group-text" id="blood-sugar-units-${index}">mmol/mol</span>
+                </div>`
+    }
+    return "";
+}
+
+function addMeal(meal, index) {
+    if (objectNotEmpty(meal)) {
+        return `<div class="mb-3">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="meal-name-input-${index}">${meal.mealName}</span>
+                        <input class="form-control" type="text" value="${meal.totalCarbs}"
+                            aria-label="Disabled input example" disabled readonly>
+                        <span class="input-group-text" id="basic-addon2">grams Carbs</span>
+                    </div>
+                </div>`
+    }
+    return "";
+}
+
+function addInsulin(insulinList, index) {
+    if (objectNotEmpty(insulinList)) {
+        return `<div class="input-group mb-3">
+                    <input class="form-control" type="text" value="${insulinList.units}"
+                        aria-label="Insulin Type" id="insulin-type-${index}" disabled readonly>
+                    <span class="input-group-text" id="insulin-units">Units ${insulinList.insulinType}</span>
+                </div>`
+    }
+    return "";
+}
+
+// https://stackabuse.com/javascript-check-if-an-object-is-empty/
+const objectNotEmpty = (obj) => {
+    return Object.values(obj).length > 0 && obj.constructor === Object;
+}

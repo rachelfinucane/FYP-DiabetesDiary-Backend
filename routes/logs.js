@@ -42,7 +42,7 @@ router.post('/logs', [userAuthCheck], function (req, res, next) {
 
     addLog(newLog);
 
-    res.redirect(200, '/view-logs');
+    res.redirect('/view-logs');
 });
 
 module.exports = router;
