@@ -59,6 +59,14 @@ passport.deserializeUser(async function (user, cb) {
 
 var router = express.Router();
 
+const userAuthCheck = function (req, res, next) {
+    if (!req.user) {
+        console.log("Auth check failed. Redirecting to login.");
+        return res.render('login');
+    }
+    next();
+}
+
 /* GET /login
  *
  * This route prompts the user to log in.
