@@ -14,4 +14,20 @@ const userAuthCheck = function (req, res, next) {
     next();
 }
 
-module.exports = {objectNotEmpty, userAuthCheck}
+// Fetch helper
+// Some boilerplate taken from here:
+// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+async function fetchData(url) {
+    // ref: https://www.npmjs.com/package/csurf
+    // See 'Using Ajax' Section
+
+    console.log('fetching from ', url);
+    // const response = await fetch(url, {
+    //     credentials: 'omit',
+    //     method: 'GET'
+    // });
+
+    // return response;
+}
+
+module.exports = {objectNotEmpty, userAuthCheck, fetchData}
