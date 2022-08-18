@@ -1,9 +1,9 @@
 var express = require('express');
-var ensureLogIn = require('connect-ensure-login').ensureLoggedIn;
+// var ensureLogIn = require('connect-ensure-login').ensureLoggedIn;
 
 const { addLog, getLogs } = require('../services/service_logs.js')
 
-var ensureLoggedIn = ensureLogIn();
+// var ensureLoggedIn = ensureLogIn();
 
 var router = express.Router();
 
@@ -27,22 +27,25 @@ router.get('/view-logs', [userAuthCheck], function (req, res, next) {
 });
 
 /* GET logs */
-router.get('/logs', [userAuthCheck], async function(req, res, next) {
+router.get('/logs', [userAuthCheck], async function (req, res, next) {
     res.locals.filter = null;
     let logs = await getLogs(req.user.userId);
     res.json(logs);
 });
 
+const minDate = new Date(2000, 01, 01);
+
 /* POST logs */
-router.post('/logs', [userAuthCheck], function (req, res, next) {
-    console.log(req.body);
-    let newLog = req.body;
-    delete newLog._csrf;
-    newLog.userId = req.user.userId;
+router.post('/logs', [userAuthCheck],
+    function (req, res) {
+        console.log(req.body);
+        let newLog = req.body;
+        delete newLog._csrf;
+        newLog.userId = req.user.userId;
 
-    addLog(newLog);
+        addLog(newLog);
 
-    res.redirect('/view-logs');
-});
+        res.redirect('/view-logs');
+    });
 
 module.exports = router;

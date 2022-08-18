@@ -70,7 +70,7 @@ function handleFormError(errorString) {
 // }
 
 function noBoxesAreFilled() {
-    return mealIsEmpty() || insulinIsEmpty() || bloodSugarIsEmpty();
+    return mealIsEmpty() && insulinIsEmpty() && bloodSugarIsEmpty();
 }
 
 function mealIsEmpty() {
