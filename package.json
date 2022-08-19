@@ -25,6 +25,7 @@
         "ejs": "~2.6.1",
         "express": "~4.16.1",
         "express-session": "^1.17.2",
+        "html-entities": "^2.3.3",
         "http-errors": "~1.6.3",
         "ioredis": "^5.2.1",
         "mkdirp": "^1.0.4",
@@ -32,6 +33,7 @@
         "mssql": "^8.1.2",
         "node-html-parser": "^5.4.2-0",
         "nodemon": "^2.0.19",
+        "parse-fraction": "^1.2.1",
         "passport": "^0.6.0",
         "passport-google-oidc": "^0.1.0",
         "pluralize": "^8.0.0"

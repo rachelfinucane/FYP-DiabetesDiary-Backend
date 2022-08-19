@@ -9,7 +9,7 @@ router.get('/recipes', [userAuthCheck], function (req, res) {
 
 router.get('/recipe-info', [userAuthCheck], async function (req, res) {
     console.log(req.query.recipe);
-    let response = await scrapeNutritionInfo(req.query.service, req.query.recipe);
+    let response = await scrapeNutritionInfo(req.query.recipe);
     res.json({ data: response });
 });
 
