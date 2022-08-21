@@ -3,6 +3,36 @@ const axios = require('axios');
 const { parse } = require('node-html-parser')
 const { decode } = require('html-entities');
 const parseFract = require('parse-fraction');
+const convert = require('convert-units')
+
+const weightDict = {
+    'pounds': 'lb',
+    'pound': 'lb',
+    'lbs': 'lb',
+    'lb.': 'lb',
+    'lbs.': 'lb',
+    'lb': 'lb',
+
+    'ounces': 'oz',
+    'ounce': 'oz',
+    'oz.': 'oz',
+    'oz': 'oz',
+
+    'grams': 'g',
+    'gram': 'g',
+    'grammes': 'g',
+    'g': 'g',
+
+    'kilograms': 'kg',
+    'kilogram': 'kg',
+    'kilos': 'kg',
+    'kilo': 'kg',
+    'kg': 'kg'
+};
+
+const volumes = ['cup', 'cups', 'gallon', 'gallons', 'l', 'liter', 'liters',
+    'ml', 'milliliter', 'milliliters', 'quart', 'tsp', 'teaspoon',
+    'tbsp', 'tbspn', 'tablespoon', 'tablespoons'];
 
 async function scrapeNutritionInfo(url) {
     let service = new URL(url);
@@ -54,7 +84,7 @@ async function myRecipes(url) {
     let instructions = getInstructions();
     let parsedIngredients = getIngredients();
 
-    getNutritionalInfo({
+    let x = await getNutritionalInfo({
         recipeName,
         yieldsAmount,
         instructions,
@@ -75,7 +105,8 @@ async function myRecipes(url) {
             const checkboxListInput = ingredient.querySelector('.checkbox-list-input');
 
             // decode html special characters
-            let ingredientAmount = convertFractionToFloat(checkboxListInput.getAttribute('data-quantity'));
+            let ingredientAmount = convertFractionToFloat(checkboxListInput
+                .getAttribute('data-quantity'));
             let ingredientUnit = checkboxListInput.getAttribute('data-unit');
 
             let ingredientName = getIngredientName(checkboxListInput);
@@ -169,27 +200,99 @@ function convertFractionToFloat(numberString) {
     return fraction[0] / fraction[1];
 }
 
-function getNutritionalInfo(recipe) {
+async function getNutritionalInfo(recipe) {
     console.log(recipe);
     const ingredients = recipe.parsedIngredients;
 
-    ingredients.map(ingredient => {
-        	// search api for the ingredient
-            // if unit is a weight
-                // take first result
-                // convert ingredient to grams (do before now?)
-                // store per 100g
-                // store per amount given in recipe also
-            // if unit is a volume
-                // take first result that matches the unit (e.g. cup, floz, ml, l)
-                // store value from api (per cup, L etc)
-                // store per amount given in recipe also
+    let results = await Promise.all(
+        ingredients.map(async (ingredient) => {
+            const apiKey = process.env.USDA_API_KEY;
+            const pageSize = 10;
+            const dataType = 'Branded';
+            const query = ingredient.ingredientName;
 
-            // ALTERNATIVELY
-           // take first 5 results that match units (convert recipe to grams)
-           // store per api amount
-           // store per amount specified in recipe also
-    });
+            const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&pageSize=${pageSize}&query=${query}&dataType=${dataType}`;
+
+            let response = await axios.get(url);
+
+            let apiFoodResult = response.data.foods;
+
+            // // Survey (FNNDS): tend to be raw ingredients, e.g. carrots, cream, lemon zest
+            // let surveyAPIFoods = totalResult.filter(food => {
+            //     return food.dataType.trim().toLowerCase() === 'survey (fndds)'
+            // });
+
+            // // Branded food e.g. panko breadcrumbs
+            // let apiFoodResult = totalResult.filter(food => {
+            //     return food.dataType.trim().toLowerCase() === 'branded'
+            // });
+
+            // if ingredientUnit is weight type
+            if (ingredient.ingredientUnit.trim().toLowerCase() in weightDict) {
+
+                // Find the first matching ingredient from the API
+                // That has the info in grams
+                let matchingAPIFood = apiFoodResult.find(food => {
+
+                    // Want the first food in grams only
+                    if (food.servingSizeUnit.trim().toLowerCase() !== 'g' ||
+                        food === null || food === undefined) {
+                        return false;
+                    }
+
+                    /* Each food has a list of nutrients
+                    * We want nutrients calculated from value per serving size measure only
+                    * Also double-checking that the nutrient information is stored in grams
+                    */
+                    return food.foodNutrients.some(nutrient => {
+                        return (nutrient.derivationDescription.trim() === 'Calculated from value per serving size measure'
+                            && nutrient.unitName === 'G')
+                    });
+                });
+                if (matchingAPIFood) {
+                    let carbInfo = matchingAPIFood.foodNutrients.find((nutrient) => {
+                        return nutrient.nutrientName === 'Carbohydrate, by difference';
+                    });
+
+                    // Convert our ingredient weight to grams
+                    let recipeIngredientWeight = convert(ingredient.ingredientAmount)
+                        // pull the standardised unit e.g. g not grams
+                        .from(weightDict[ingredient.ingredientUnit])
+                        .to('g');
+
+                    let apiFoodServingSize = matchingAPIFood.servingSize;
+                    let carbsPerServing = carbInfo.value;
+
+                    let recipeIngredientCarbs = (carbsPerServing / apiFoodServingSize) * recipeIngredientWeight;
+
+                    return recipeIngredientCarbs;
+
+                } else {
+                    return "No Info Avalilabe"
+                }
+            }
+            else {
+                // let foodsWithMatchingUnits = surveyFoods.filter(food => {
+                //     return food.foodMeasures.filter(foodMeasure => {
+                //         let unit = weightDict[ingredient.ingredientUnit.trim().toLowerCase()];
+                //         let foodMeasureUnit = foodMeasure.disseminationText.toString().trim().toLowerCase();
+
+                //         // Matches pattern 1 oz, 25g, 1/4 kg, 0.25 lbs
+                //         // The number pattern came from here:
+                //         // https://www.regextester.com/94462
+                //         let unitRegex = new RegExp(`[0-9]+[,.]?[0-9]*([\\/][0-9]+[,.]?[0-9]*)?\\s*${unit}`, 'i');
+
+                //         return foodMeasureUnit.match(unitRegex) !== null;
+                //     });
+                // });
+
+                // look for any that match volume!
+
+            }
+            return ({ hello: 'hello' });
+        })
+    );
+    console.log(results);
 }
 
 module.exports = { scrapeNutritionInfo };
