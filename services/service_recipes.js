@@ -29,12 +29,39 @@ async function scrapeBBC(url) {
     const root = parse(response.data.toString());
     const infoNode = root.getElementById('__NEXT_DATA__');
     const infoContent = (JSON.parse(infoNode.innerHTML)).props.pageProps;
+    // console.log(infoContent);
+    const carbsPerServing = getCarbs(infoContent.nutritionalInfo);
+    const yieldsAmount = getYieldsAmount(infoContent.servings);
+    const ingredients = getIngredients();
+    const instructions = getInstructions();
     return {
-        title: infoContent.title,
-        description: infoContent.description,
-        ingredients: infoContent.ingredients,
-        nutritionalInfo: infoContent.nutritionalInfo,
-        servings: infoContent.servings
+        recipeName: infoContent.title,
+        yields:yieldsAmount,
+        instructions:instructions,
+        // description: infoContent.description,
+        ingredients: ingredients,
+        carbsPerServing: carbsPerServing,
+        type: "included with recipe"
+    }
+
+    function getCarbs(nutritionalInfo) {
+        let carbsObj = nutritionalInfo.find(nutrient => nutrient.label == 'carbs');
+        return carbsObj.value;
+    }
+    function getInstructions() {
+        return infoContent.schema.recipeInstructions.map(instructionWrapper => instructionWrapper.text);
+    }
+
+    function getIngredients(){
+        let unparsedIngredientList = infoContent.ingredients.flat();
+        return infoContent.ingredients.map(section => {
+            return section.ingredients.map(ingredient => {
+                return {
+                    "ingredientName": ingredient.ingredientText + ingredient.note,
+                    "ingredientAmount": ingredient.quantityText
+                  }
+            })
+        }).flat();
     }
 }
 
@@ -52,22 +79,23 @@ async function myRecipes(url) {
     const infoContent = (JSON.parse(infoNode.innerHTML));
 
     const recipeName = getRecipeName();
-    let yieldsAmount = getYieldsAmount();
+    let yieldsAmount = getYieldsAmount(infoContent[1].recipeYield);
     let instructions = getInstructions();
     let parsedIngredients = getIngredients();
 
-    let nutritionalInfo = await getNutritionalInfo({
-        recipeName,
+    const ingredientsWithNutrition = await getNutritionalInfo({
         yieldsAmount,
-        instructions,
         parsedIngredients
     });
 
+    console.log(ingredientsWithNutrition);
+
     return ({
-        recipeName,
-        yieldsAmount,
-        instructions,
-        parsedIngredients
+        recipeName: recipeName,
+        yields: yieldsAmount,
+        instructions: instructions,
+        ingredients: ingredientsWithNutrition,
+        type: "manually calculated"
     });
 
     function getIngredients() {
@@ -112,15 +140,6 @@ async function myRecipes(url) {
         return instructions;
     }
 
-    function getYieldsAmount() {
-        const unParsedYield = infoContent[1].recipeYield.match(/\d+/g);
-
-        let yieldsAmount = unParsedYield.reduce((prev, curr) => {
-            return (parseInt(prev) + parseInt(curr)) / unParsedYield.length;
-        });
-        return yieldsAmount;
-    }
-
     function getRecipeName() {
         return infoContent[1].name;
     }
@@ -158,6 +177,19 @@ async function scrapeGoodHousekeeping(url) {
 
     // let template = { ingredients:[ingredientName, ingredientAmount, ingredientUnit], yieldsAmount, yieldsUnit };
     return ({ list: "kljflaksjdf" });
+}
+
+function getYieldsAmount(string) {
+    // Regex matches patterns: serves 10-12 or serves 10 to 12 or serves 12
+    let unParsedYield = string.match(/\d+\s?(-|to)?\s?\d*/);
+    unParsedYield = unParsedYield[0].match(/\d+/g);
+
+    let yieldsAmount = unParsedYield.reduce((prev, curr) => {
+        console.log(parseFloat(prev), parseFloat(curr));
+        return (parseFloat(prev) + parseFloat(curr));
+    }) / unParsedYield.length;
+    console.log(yieldsAmount);
+    return yieldsAmount;
 }
 
 module.exports = { scrapeNutritionInfo };

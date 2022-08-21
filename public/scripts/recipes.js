@@ -3,7 +3,7 @@ console.log('recipe');
 window.addEventListener('load', () => {
     // Some boilerplate taken from here:
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-    fetchLogs(url='/recipe-info?recipe=https://www.myrecipes.com/recipe/two-toned-scalloped-potatoes', params='')
+    fetchLogs(url='/recipe-info?recipe=https://www.bbcgoodfood.com/recipes/marrow-pecan-cake-maple-icing', params='')
         .then((data) => {
             console.log(data);
         });

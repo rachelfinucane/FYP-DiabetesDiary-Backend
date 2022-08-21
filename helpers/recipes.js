@@ -45,9 +45,9 @@ const volumeDict = {
     'teaspoon': 'tsp',
     'teaspoons': 'tsp',
 
-    'tbs': 'tbs',
-    'tablespoon': 'tbs',
-    'tablespoons': 'tbs',
+    'tbs': 'Tbs',
+    'tablespoon': 'Tbs',
+    'tablespoons': 'Tbs',
 
     'fl-oz': 'fl-oz',
     'floz': 'fl-oz',
