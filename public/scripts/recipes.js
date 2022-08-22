@@ -1,3 +1,5 @@
+let searchResults;
+
 window.addEventListener('load', () => {
     // Some boilerplate taken from here:
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
@@ -26,12 +28,9 @@ async function makeFetchRequest(url, params) {
 }
 
 function showSearchBox() {
-    linkGoesToRecipes();
-
-    let searchBox = document.createElement('div');
-    searchBox.setAttribute('id', 'search-box');
+    linkGoesToViewRecipes();
     const searchBoxHtml =
-        `<form onsubmit='searchRecipes(event);' class="row mx-auto g-3">
+        `<form onsubmit='searchRecipes(event);' class="row text-center g-3">
             <div class="col-md-6">
                 <label class="visually-hidden" for="input-recipe-keyword">Recipe keywords</label>
                 <input type="search" class="form-control" id="input-recipe-keyword"
@@ -49,22 +48,20 @@ function showSearchBox() {
             </div>
 
             <div class="col d-grid gap-2 d-md-block">
-                <button class="btn btn-dark">Search</button>
+                <button class="btn btn-dark w-100">Search</button>
             </div>
             
         </form>`
-
-    searchBox.innerHTML = searchBoxHtml;
-
-    const formContainer = document.getElementById('search-box-container');
-    formContainer.innerHTML = searchBoxHtml;
+    let searchBoxContainer = document.getElementById('search-box-container');
+    searchBoxContainer.innerHTML = searchBoxHtml;
 }
 
 function showSavedRecipes() {
+    let searchResultsContainer = document.getElementById('search-results-container');
+    searchResultsContainer.innerHTML = "";
     linkGoesToAddRecipe();
-    let searchBox = document.getElementById('search-box');
-    searchBox.remove();
-
+    let searchBox = document.getElementById('search-box-container');
+    searchBox.innerHTML = "";
     // Then show all recipes
 }
 
@@ -74,7 +71,7 @@ function linkGoesToAddRecipe() {
     link.setAttribute('onclick', 'showSearchBox(event);');
 }
 
-function linkGoesToRecipes() {
+function linkGoesToViewRecipes() {
     let link = document.getElementById('a-new-recipe');
     link.innerHTML = 'Back to recipes';
     link.setAttribute('onclick', 'showSavedRecipes(event);');
@@ -92,6 +89,7 @@ function searchRecipes(event) {
     let url = `/search-recipes?recipeSite=${recipeSite}&keywords=${keywords}`;
     makeFetchRequest(url = url, params = '')
         .then((data) => {
+            searchResults = data;
             displaySearchResults(data);
         });
 }
@@ -102,7 +100,7 @@ function displaySearchResults(searchResults) {
 
     searchResults.map(result => {
         console.log(result.pagemap.cse_thumbnail[0]);
-        const resultCardHtml = `<div class="card mb-3 mx-auto" style="max-width: 700px;">
+        const resultCardHtml = `<div class="card col-md-8 mb-3 mx-auto">
                             <div class="row g-0">
                             <div class="col-md-4">
                                 <img src="${result.pagemap.cse_image[0].src}" class="rounded-start h-100 w-100 googleThumbnail" alt="Image preview for link">
@@ -112,8 +110,8 @@ function displaySearchResults(searchResults) {
                                     <h5 class="card-title"><a class='text-dark' href='${result.link}'>${result.htmlTitle}</a></h5>
                                     <p class="card-text">${result.htmlSnippet}</p>
                                     <div class="d-grid gap-2 d-md-block">
-                                        <button class="btn btn-light" type="button">View Recipe Information</button>
-                                        <button class="btn btn-light" type="button">Save Recipe</button>
+                                        <button class="btn btn-light" type="button">View Recipe Information</button> <!-- Gets Recipe Info -->
+                                        <button class="btn btn-light" type="button">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
                                     </div>                                    
                                 </div>
                             </div>

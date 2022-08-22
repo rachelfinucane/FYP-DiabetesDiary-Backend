@@ -1,14 +1,10 @@
 const axios = require('axios');
-// import { parse } from 'node-html-parser';
 const { parse } = require('node-html-parser')
 const { decode } = require('html-entities');
 const { removeTabsAndReturns, convertFractionToFloat } = require('../helpers/recipes.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
 
 async function searchRecipes(recipeSite, keywords) {
-    console.log("searching");
-
-
     const googleAPIKey = process.env['GOOGLE_SEARCH_API_KEY'];
     const googleSearchEngine = process.env['GOOGLE_PROGRAMMABLE_SEARCH_ENGINE'];
 
