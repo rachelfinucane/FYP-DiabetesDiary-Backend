@@ -14,8 +14,12 @@ router.get('/view-logs', [userAuthCheck], function (req, res, next) {
 
 /* GET logs */
 router.get('/logs', [userAuthCheck], async function (req, res, next) {
-    let logs = await getLogs(req.user.userId);
-    res.json(logs);
+    try {
+        let logs = await getLogs(req.user.userId);
+        res.json(logs);
+    } catch (err) {
+        next(err);
+    }
 });
 
 /* POST logs */

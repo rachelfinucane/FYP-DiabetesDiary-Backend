@@ -15,10 +15,15 @@ async function searchRecipes(recipeSite, keywords) {
     const googleUrlSubdirectory = `v1?key=${googleAPIKey}&cx=${googleSearchEngine}&q=${query}`;
 
     const googleUrl = new URL(googleUrlSubdirectory, googleBaseUrl);
-    
-    const response = await axios.get(googleUrl.href);
-    const result = response.data;
-    return result.items;
+
+    try {
+        const response = await axios.get(googleUrl.href);
+        const result = response.data;
+        return result.items;
+    } catch (err) {
+        console.log(err);
+        throw new Error("Could not connect to the Google Search API");
+    }
 }
 
 function getRecipeSiteUrl(recipeSite) {
