@@ -19,9 +19,9 @@ router.get('/recipe-info', [userAuthCheck], async function (req, res, next) {
 });
 
 router.get('/search-recipes', [userAuthCheck], async function (req, res, next) {
-    try{
-    let response = await searchRecipes(req.query.recipeSite, req.query.keywords);
-    res.json(response);
+    try {
+        let response = await searchRecipes(req.query.recipeSite, req.query.keywords);
+        res.json(response);
     } catch (err) {
         next(err)
     }

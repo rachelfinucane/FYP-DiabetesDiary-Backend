@@ -40,9 +40,6 @@ function resetFormError() {
     if (alert) {
         alert.remove();
     }
-    // let form = document.getElementById('log-form');
-    // form.classList.remove('was-validated');
-    // setValid();
 }
 
 function handleFormError(errorString) {
@@ -52,22 +49,7 @@ function handleFormError(errorString) {
                         </div>`
     siblingElement.insertAdjacentHTML("afterend", errorDivHtml);
 
-    // setInvalid();
 }
-
-// function setInvalid() {
-//     let inputs = document.querySelectorAll('.log-inputs');
-//     inputs.forEach((input) => {
-//         input.classList.add('is-invalid');
-//     })
-// }
-
-// function setValid() {
-//     let inputs = document.querySelectorAll('.log-inputs');
-//     inputs.forEach((input) => {
-//         input.classList.remove('is-invalid');
-//     })
-// }
 
 function noBoxesAreFilled() {
     return mealIsEmpty() && insulinIsEmpty() && bloodSugarIsEmpty();

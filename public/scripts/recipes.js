@@ -6,7 +6,7 @@ window.addEventListener('load', () => {
     makeFetchRequest(url = '/recipe-info?recipe=https://www.bbcgoodfood.com/recipes/marrow-pecan-cake-maple-icing', params = '')
         .then((data) => {
             console.log(data);
-        });
+        }).catch(err => {console.log(err);});
 });
 
 // Some boilerplate taken from here:
@@ -16,15 +16,20 @@ async function makeFetchRequest(url, params) {
     // See 'Using Ajax' Section
     const token = document.getElementById('csrf-token').content;
 
-    const response = await fetch(url, {
+    return await fetch(url, {
         credentials: 'same-origin',
         headers: {
             'CSRF-Token': token
         },
         method: 'GET',
         mode: 'same-origin'
+    }).then(response => {
+        if (response.status != 200) {
+            console.log(response);
+            throw new Error(`There was an error connecting to the server (Response: ${response.status})`);
+        }
+        return response.json();
     });
-    return response.json();
 }
 
 function showSearchBox() {
@@ -57,6 +62,7 @@ function showSearchBox() {
 }
 
 function showSavedRecipes() {
+    resetFormError();
     let searchResultsContainer = document.getElementById('search-results-container');
     searchResultsContainer.innerHTML = "";
     linkGoesToAddRecipe();
@@ -79,6 +85,7 @@ function linkGoesToViewRecipes() {
 
 function searchRecipes(event) {
     event.preventDefault();
+    resetFormError();
     const siteSelect = document.getElementById('select-recipe-source');
     let recipeSite = siteSelect.options[siteSelect.selectedIndex].text;
     recipeSite = recipeSite.replaceAll(' ', '+');
@@ -91,12 +98,16 @@ function searchRecipes(event) {
         .then((data) => {
             searchResults = data;
             displaySearchResults(data);
+        }).catch(err => { 
+            handleFormError(err.message);
         });
 }
 
 function displaySearchResults(searchResults) {
     const searchResultsContainer = document.getElementById('search-results-container');
     searchResultsContainer.innerHTML = "";
+
+    // TODO Error check that there are some results
 
     searchResults.map(result => {
         console.log(result.pagemap.cse_thumbnail[0]);
@@ -119,5 +130,19 @@ function displaySearchResults(searchResults) {
                         </div>`
         searchResultsContainer.innerHTML += resultCardHtml;
     });
+}
 
+function resetFormError() {
+    let alert = document.getElementById('alert');
+    if (alert) {
+        alert.remove();
+    }
+}
+
+function handleFormError(errorString) {
+    let siblingElement = document.getElementById('a-new-recipe');
+    let errorDivHtml = `<div class="col-md-6 alert alert-warning mt-2 mx-auto" role="alert" id="alert">
+                            ${errorString}
+                        </div>`
+    siblingElement.insertAdjacentHTML("afterend", errorDivHtml);
 }
