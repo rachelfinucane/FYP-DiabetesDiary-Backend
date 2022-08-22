@@ -5,6 +5,39 @@ const { decode } = require('html-entities');
 const { removeTabsAndReturns, convertFractionToFloat } = require('../helpers/recipes.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
 
+async function searchRecipes(recipeSite, keywords) {
+    console.log("searching");
+
+
+    const googleAPIKey = process.env['GOOGLE_SEARCH_API_KEY'];
+    const googleSearchEngine = process.env['GOOGLE_PROGRAMMABLE_SEARCH_ENGINE'];
+
+    const recipeSiteUrl = getRecipeSiteUrl(recipeSite);
+    let query = recipeSiteUrl.concat(' ', keywords);
+
+    const googleBaseUrl = new URL('https://www.googleapis.com/customsearch/');
+    const googleUrlSubdirectory = `v1?key=${googleAPIKey}&cx=${googleSearchEngine}&q=${query}`;
+
+    const googleUrl = new URL(googleUrlSubdirectory, googleBaseUrl);
+    
+    const response = await axios.get(googleUrl.href);
+    const result = response.data;
+    return result.items;
+}
+
+function getRecipeSiteUrl(recipeSite) {
+    let siteDict = {
+        'BBC Good Food': 'site:https://www.bbcgoodfood.com/recipes/ -https://www.bbcgoodfood.com/recipes/collection',
+        'MyRecipes': 'site:https://www.myrecipes.com/recipe/',
+        'All': '-https://www.bbcgoodfood.com/recipes/collection' // Custom search engine is set up to pull from the above site only
+    };
+
+    let recipeSiteUrl = siteDict[recipeSite];
+    if (recipeSiteUrl === undefined) {
+        throw new Error("Could not search for recipes. Invalid recipeSite provided.");
+    }
+    return recipeSiteUrl;
+}
 
 async function scrapeNutritionInfo(url) {
     let service = new URL(url);
@@ -17,9 +50,9 @@ async function scrapeNutritionInfo(url) {
         return scrapeGoodHousekeeping(url);
     } else if (service.includes('myrecipes')) {
         return myRecipes(url);
+    } else {
+        throw new Error("Could not process request to scrape nutritional info: url was not to a supported recipe site");
     }
-
-    console.log("Could not process request: url was not to a supported recipe site");
 }
 
 async function scrapeBBC(url) {
@@ -36,8 +69,8 @@ async function scrapeBBC(url) {
     const instructions = getInstructions();
     return {
         recipeName: infoContent.title,
-        yields:yieldsAmount,
-        instructions:instructions,
+        yields: yieldsAmount,
+        instructions: instructions,
         // description: infoContent.description,
         ingredients: ingredients,
         carbsPerServing: carbsPerServing,
@@ -52,14 +85,14 @@ async function scrapeBBC(url) {
         return infoContent.schema.recipeInstructions.map(instructionWrapper => instructionWrapper.text);
     }
 
-    function getIngredients(){
+    function getIngredients() {
         let unparsedIngredientList = infoContent.ingredients.flat();
         return infoContent.ingredients.map(section => {
             return section.ingredients.map(ingredient => {
                 return {
                     "ingredientName": ingredient.ingredientText + ingredient.note,
                     "ingredientAmount": ingredient.quantityText
-                  }
+                }
             })
         }).flat();
     }
@@ -192,4 +225,4 @@ function getYieldsAmount(string) {
     return yieldsAmount;
 }
 
-module.exports = { scrapeNutritionInfo };
+module.exports = { scrapeNutritionInfo, searchRecipes };

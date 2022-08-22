@@ -3,6 +3,7 @@
 
 <head>
     <%- include('head') %>
+    <link rel="stylesheet" href="/css/recipes.css">
 </head>
 
 <body class="d-flex h-100 text-center ">
@@ -10,7 +11,7 @@
         integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
         crossorigin="anonymous"></script>
 
-    <script type="text/javascript" src="../scripts/recipes.js"></script>
+    <script type="text/javascript" src="/scripts/recipes.js"></script>
     <div class="cover-container d-flex w-100 h-100 mx-auto flex-column">
 
         <%- include('header') %>
@@ -18,6 +19,7 @@
             <main class="container pt-4">
                 <a href='#' onclick='return showSearchBox(event);' class='pb-4' id="a-new-recipe">Add new recipe</a>
                 <div class="col-md-7 mx-auto pt-4" id="search-box-container"></div>
+                <div class="p-3" id="search-results-container"></div>
             </main>
 
             <%- include('footer') %>
