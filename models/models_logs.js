@@ -74,13 +74,21 @@ const insertBloodSugar = async (request, bloodSugar) => {
 const insertMeal = async (request, meal) => {
 
     if (objectNotEmpty(meal) && meal.mealName && meal.totalCarbs) {
+        let sqlQuery;
+        if(meal.recipeId != null) {
+            console.log("recipeID! ",meal.recipeId);
+            request.input("recipeId", sql.UniqueIdentifier, meal.recipeId);
+            sqlQuery = "INSERT INTO Meal (mealName, recipeId, totalCarbs, weight) OUTPUT inserted.mealId VALUES (@mealName, @recipeId, @totalCarbs, @weight)"
+        } else{
+            sqlQuery = "INSERT INTO Meal (mealName, totalCarbs, weight) OUTPUT inserted.mealId VALUES (@mealName, @totalCarbs, @weight)";
+        }
         request.input("mealName", sql.VarChar(100), meal.mealName);
         request.input("totalCarbs", sql.Decimal(7, 3), parseFloat(meal.totalCarbs));
 
         if (meal.mealWeight) {
             request.input("mealWeight", sql.Decimal(7, 3), parseFloat(meal.mealWeight));
             console.log("Inserting meal with weight");
-            const result = await request.query("INSERT INTO Meal (mealName, totalCarbs, weight) OUTPUT inserted.mealId VALUES (@mealName, @totalCarbs, @weight)");
+            const result = await request.query(sqlQuery);
             return result.recordsets[0][0].mealId;
         }
         console.log("Inserting meal without weight");
