@@ -1,19 +1,17 @@
 let searchResults;
 
 window.addEventListener('load', () => {
-    // Some boilerplate taken from here:
-    // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-    // makeFetchRequest(url = '/recipe-info?recipe=https://www.bbcgoodfood.com/recipes/marrow-pecan-cake-maple-icing', params = '')
-    //     .then((data) => {
-    //         console.log(data);
-    //     }).catch(err => {console.log(err);});
+    getSavedRecipesFromServer();
+});
 
+function getSavedRecipesFromServer() {
     makeGetRequest(url = '/recipes/userId', params = '')
         .then((data) => {
             console.log(data);
-            showSavedRecipes(data);
+            localStorage.setItem('recipes', JSON.stringify(data));
+            showSavedRecipes();
         }).catch(err => { console.log(err); });
-});
+}
 
 // Some boilerplate taken from here:
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
@@ -61,8 +59,10 @@ async function makePostRequest(url, body) {
 
 }
 
-function showSearchBox() {
-    linkGoesToViewRecipes();
+function showSearchBox(event) {
+    event.preventDefault();
+    displayShowBackButton();
+
     const searchBoxHtml =
         `<form onsubmit='searchRecipes(event);' class="row text-center g-3">
             <div class="col-md-6">
@@ -85,23 +85,30 @@ function showSearchBox() {
                 <button class="btn btn-dark w-100">Search</button>
             </div>
             
-        </form>`
+        </form>`;
     let searchBoxContainer = document.getElementById('search-box-container');
+    let recipeDisplayContainer = document.getElementById('recipe-display-container');
     searchBoxContainer.innerHTML = searchBoxHtml;
+    recipeDisplayContainer.innerHTML = "";
+    console.log("clicked");
 }
 
-function showSavedRecipes(recipes) {
+function showSavedRecipes() {
     resetDisplayError();
+    
     let searchResultsContainer = document.getElementById('search-results-container');
-    searchResultsContainer.innerHTML = "";
-    linkGoesToAddRecipe();
     let searchBox = document.getElementById('search-box-container');
+
+    searchResultsContainer.innerHTML = "";
     searchBox.innerHTML = "";
+
+    displaySearchBoxButton();
     
     // Then show all recipes
     const recipeDisplayContainer = document.getElementById('recipe-display-container');
     recipeDisplayContainer.innerHTML = "";
 
+    const recipes = JSON.parse(localStorage.getItem('recipes'));
     recipes.map(recipe => {
         let recipeCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card">
                                     <div class="row g-0">
@@ -119,16 +126,18 @@ function showSavedRecipes(recipes) {
     });
 }
 
-function linkGoesToAddRecipe() {
-    let link = document.getElementById('a-new-recipe');
-    link.innerHTML = 'Add new recipe';
-    link.setAttribute('onclick', 'showSearchBox(event);');
+function displaySearchBoxButton() {
+    let showSearchBoxButton = document.getElementById('a-new-recipe');
+    let showRecipeListButton = document.getElementById('a-view-recipes');
+    showSearchBoxButton.removeAttribute('hidden', true);
+    showRecipeListButton.setAttribute('hidden', true);
 }
 
-function linkGoesToViewRecipes() {
-    let link = document.getElementById('a-new-recipe');
-    link.innerHTML = 'Back to recipes';
-    link.setAttribute('onclick', 'showSavedRecipes(event);');
+function displayShowBackButton() {
+    let showSearchBoxButton = document.getElementById('a-new-recipe');
+    let showRecipeListButton = document.getElementById('a-view-recipes');
+    showSearchBoxButton.setAttribute('hidden', true);
+    showRecipeListButton.removeAttribute('hidden', true);
 }
 
 function searchRecipes(event) {
@@ -188,7 +197,7 @@ function saveRecipe(event) {
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
     makePostRequest(url, { recipeUrl: recipeUrl })
         .then(() => {
-            showSavedRecipes();
+            getSavedRecipesFromServer();
         })
         .catch(err => { console.log(err) });
 }
