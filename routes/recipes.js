@@ -13,7 +13,7 @@ router.get('/recipes', [userAuthCheck], async function (req, res) {
     }
 });
 
-router.get('/recipes/userId', [userAuthCheck], async function (req, res) {
+router.get('/recipes/userId', [userAuthCheck], async function (req, res, next) {
     try {
         const response = await getRecipesByUserId(req.user.userId);
         console.log(response);

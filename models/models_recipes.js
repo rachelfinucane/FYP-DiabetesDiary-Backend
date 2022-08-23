@@ -16,19 +16,26 @@ async function handleGetRecipesByUserId(userId) {
     // Use with await/async: https://stackoverflow.com/a/68832025
     const pool = await poolAsync;
 
-    const queryString = "SELECT carbsPerServing, totalCarbs, recipeType, " +
+    const queryString = "SELECT DISTINCT (" +
+        "SELECT r.recipeId, carbsPerServing, totalCarbs, recipeType, " +
         "recipeInstructions, recipeYields, recipeName, ingredientName, " +
         "ingredientAmount, ingredientUnit, apiFoodName, carbs " +
         "FROM Users as u " +
         "JOIN Recipe as r ON (u.userId = r.userId) " +
         "JOIN IngredientList as il ON (r.recipeId = il.recipeId) " +
         "JOIN Ingredient i ON (il.ingredientId = i.ingredientId) " +
-        "WHERE u.userId = @userId";
+        "WHERE u.userId = @userId " +
+        // THIS IS VERY COOL AND HANDY
+        "FOR JSON AUTO " +
+        ") AS recipe"; // Ref: https://docs.microsoft.com/en-us/sql/relational-databases/json/format-json-output-automatically-with-auto-mode-sql-server?view=sql-server-ver16
 
-    let result = await pool.request()
+
+    const result = await pool.request()
         .input('userId', sql.UniqueIdentifier, userId, userId)
         .query(queryString);
-    return result.recordset;
+
+    // console.log(result.recordset[0]);
+    return result.recordset[0];
 }
 
 async function handleInsertRecipe(newRecipe, userId) {

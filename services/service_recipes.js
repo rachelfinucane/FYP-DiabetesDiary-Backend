@@ -5,6 +5,7 @@ const { removeTabsAndReturns, convertFractionToFloat } = require('../helpers/rec
 const { roundDecimalPlaces } = require('../helpers/helpers.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
 const { handleGetRecipesByUserId, handleInsertRecipe, handleGetRecipesWithFilter } = require('../models/models_recipes.js');
+const { json } = require('express');
 
 async function getRecipesWithFilter(userId, filters){
     return await handleGetRecipesWithFilter(userId, filters);
@@ -39,7 +40,9 @@ async function saveRecipe(url, userId) {
 }
 
 async function getRecipesByUserId(userId) {
-    return await handleGetRecipesByUserId(userId);
+    let results = await handleGetRecipesByUserId(userId);
+    JSON.parse(results.recipe);
+    return JSON.parse(results.recipe);
 }
 
 function getRecipeSiteUrl(recipeSite) {
@@ -105,7 +108,7 @@ async function scrapeBBC(url) {
         return infoContent.ingredients.map(section => {
             return section.ingredients.map(ingredient => {
                 return {
-                    ingredientName: ingredient.quantityText.concat(" ", ingredient.ingredientText),
+                    ingredientName: ingredient.quantityText?.concat(" ", ingredient?.ingredientText),
                     "ingredientAmount": null,
                     "ingredientUnit": null,
                     "apiFoodName": null,
