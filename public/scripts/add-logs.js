@@ -192,6 +192,8 @@ function showManualMealInputs() {
     document.getElementById('input-recipe-name').setAttribute('hidden', true);
     document.getElementById('input-recipe-servings').setAttribute('hidden', true);
     document.getElementById('carbs-input').readOnly = false;
+    
+    setLocals();
 }
 
 function getLocals() {

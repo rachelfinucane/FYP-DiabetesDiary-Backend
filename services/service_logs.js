@@ -24,6 +24,7 @@ function addLog(logInput) {
         console.log("recipeId", recipeId, "end string");
         if (recipeId !== "default") {
             newLog.meal.recipeId = recipeId;
+            newLog.meal.recipeServings = logInput.servingsInput
         }
     }
 
