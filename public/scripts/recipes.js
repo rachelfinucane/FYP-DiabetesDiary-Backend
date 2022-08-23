@@ -1,13 +1,25 @@
 let searchResults;
 
-// window.addEventListener('load', () => {
-// // Some boilerplate taken from here:
-// // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-// makeFetchRequest(url = '/recipe-info?recipe=https://www.bbcgoodfood.com/recipes/marrow-pecan-cake-maple-icing', params = '')
-//     .then((data) => {
-//         console.log(data);
-//     }).catch(err => {console.log(err);});
-// });
+window.addEventListener('load', () => {
+    // Some boilerplate taken from here:
+    // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+    // makeFetchRequest(url = '/recipe-info?recipe=https://www.bbcgoodfood.com/recipes/marrow-pecan-cake-maple-icing', params = '')
+    //     .then((data) => {
+    //         console.log(data);
+    //     }).catch(err => {console.log(err);});
+
+    makeGetRequest(url = '/recipes/userId', params = '')
+        .then((data) => {
+            console.log(data);
+            displayRecipes(data);
+        }).catch(err => { console.log(err); });
+});
+
+function displayRecipes(recipes) {
+    recipes.map(recipe => {
+
+    });
+}
 
 // Some boilerplate taken from here:
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
@@ -162,7 +174,7 @@ function saveRecipe(event) {
     // Some boilerplate taken from here:
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
     makePostRequest(url, { recipeUrl: recipeUrl })
-        .then(()=>{
+        .then(() => {
             showSavedRecipes();
         })
         .catch(err => { console.log(err) });

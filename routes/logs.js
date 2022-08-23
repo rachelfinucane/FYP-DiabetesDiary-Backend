@@ -18,6 +18,7 @@ router.get('/logs', [userAuthCheck], async function (req, res, next) {
         let logs = await getLogs(req.user.userId);
         res.json(logs);
     } catch (err) {
+        console.log(err);
         next(err);
     }
 });

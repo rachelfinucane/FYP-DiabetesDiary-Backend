@@ -1,5 +1,26 @@
 const { sql, poolAsync } = require('./db');
 
+async function handleGetRecipesByUserId(userId) {
+    // How to use transactions:
+    // From mssql docs https://tediousjs.github.io/node-mssql/#transaction
+    // Use with await/async: https://stackoverflow.com/a/68832025
+    const pool = await poolAsync;
+
+    const queryString = "SELECT carbsPerServing, totalCarbs, recipeType, " +
+        "recipeInstructions, recipeYields, recipeName, ingredientName, " +
+        "ingredientAmount, ingredientUnit, apiFoodName, carbs " +
+        "FROM Users as u " +
+        "JOIN Recipe as r ON (u.userId = r.userId) " +
+        "JOIN IngredientList as il ON (r.recipeId = il.recipeId) " +
+        "JOIN Ingredient i ON (il.ingredientId = i.ingredientId) " +
+        "WHERE u.userId = @userId";
+
+    let result = await pool.request()
+        .input('userId', sql.UniqueIdentifier, userId, userId)
+        .query(queryString);
+    return result.recordset;
+}
+
 async function handleInsertRecipe(newRecipe, userId) {
     // How to use transactions:
     // From mssql docs https://tediousjs.github.io/node-mssql/#transaction
@@ -114,4 +135,4 @@ async function insertBulkIngredients(request, recipe) {
     console.log(result);
 }
 
-module.exports = { handleInsertRecipe }
+module.exports = { handleInsertRecipe, handleGetRecipesByUserId }
