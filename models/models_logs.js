@@ -1,6 +1,62 @@
 const { sql, poolAsync } = require('./db');
 const { objectNotEmpty } = require('../helpers/helpers');
 
+async function handleInsertLog(newLog) {
+    // How to use transactions:
+    // From mssql docs https://tediousjs.github.io/node-mssql/#transaction
+    // Use with await/async: https://stackoverflow.com/a/68832025
+    const pool = await poolAsync;
+
+    let transaction;
+    try {
+        transaction = new sql.Transaction(pool);
+
+        // Troubleshooting transaction
+        // Docs were confusing, initially didn't realise that logic
+        // went in a callback function
+        // https://github.com/tediousjs/node-mssql/issues/123#issuecomment-73353413
+        // This explained where I'd been going wrong
+        await transaction.begin(async function (err) {
+            const request = new sql.Request(transaction);
+
+            const bloodSugarId = await insertBloodSugar(request, newLog.bloodSugar);
+            const mealId = await insertMeal(request, newLog.meal);
+            const insulinTakenId = await insertInsulin(request, newLog.insulinList);
+            const logId = await insertLog(request, {
+                bloodSugarId,
+                mealId,
+                insulinTakenId,
+                date: newLog.date,
+                time: newLog.time,
+                userId: newLog.userId
+            })
+
+            await transaction.commit();
+
+            return [bloodSugarId, mealId, insulinTakenId, logId];
+        });
+
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+async function handleSelectLogs(userId) {
+    const pool = await poolAsync;
+    const queryString = 'SELECT * FROM Log l ' +
+        'LEFT JOIN BloodSugar b ON (l.bloodSugarId = b.bloodSugarId) ' +
+        'LEFT JOIN InsulinTaken i ON (l.insulinTakenId = i.insulinTakenId) ' +
+        'LEFT JOIN Meal m ON (l.mealId = m.mealId) ' +
+        'WHERE userId = @userId ' +
+        'ORDER BY l.logTime DESC';
+
+    let result = await pool.request()
+        .input('userId', sql.UniqueIdentifier, userId)
+        .query(queryString);
+    return result.recordsets[0];
+}
+
 const insertBloodSugar = async (request, bloodSugar) => {
     if (bloodSugar.value) {
         console.log("Inserting blood sugar");
@@ -72,62 +128,6 @@ const insertLog = async (request, logDetails) => {
 
 function combineDateTime(date, time) {
     return date + " " + time;
-}
-
-async function handleInsertLog(newLog) {
-    // How to use transactions:
-    // From mssql docs https://tediousjs.github.io/node-mssql/#transaction
-    // Use with await/async: https://stackoverflow.com/a/68832025
-    const pool = await poolAsync;
-
-    let transaction;
-    try {
-        transaction = new sql.Transaction(pool);
-
-        // Troubleshooting transaction
-        // Docs were confusing, initially didn't realise that logic
-        // went in a callback function
-        // https://github.com/tediousjs/node-mssql/issues/123#issuecomment-73353413
-        // This explained where I'd been going wrong
-        await transaction.begin(async function (err) {
-            const request = new sql.Request(transaction);
-
-            const bloodSugarId = await insertBloodSugar(request, newLog.bloodSugar);
-            const mealId = await insertMeal(request, newLog.meal);
-            const insulinTakenId = await insertInsulin(request, newLog.insulinList);
-            const logId = await insertLog(request, {
-                bloodSugarId,
-                mealId,
-                insulinTakenId,
-                date: newLog.date,
-                time: newLog.time,
-                userId: newLog.userId
-            })
-
-            await transaction.commit();
-
-            return [bloodSugarId, mealId, insulinTakenId, logId];
-        });
-
-    } catch (err) {
-        await transaction.rollback();
-        throw err;
-    }
-}
-
-async function handleSelectLogs(userId) {
-    const pool = await poolAsync;
-    const queryString = 'SELECT * FROM Log l ' +
-        'LEFT JOIN BloodSugar b ON (l.bloodSugarId = b.bloodSugarId) ' +
-        'LEFT JOIN InsulinTaken i ON (l.insulinTakenId = i.insulinTakenId) ' +
-        'LEFT JOIN Meal m ON (l.mealId = m.mealId) ' +
-        'WHERE userId = @userId ' +
-        'ORDER BY l.logTime DESC';
-
-    let result = await pool.request()
-        .input('userId', sql.UniqueIdentifier, userId)
-        .query(queryString);
-    return result.recordsets[0];
 }
 
 module.exports = { handleInsertLog, handleSelectLogs };
