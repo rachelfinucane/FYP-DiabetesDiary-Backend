@@ -38,14 +38,12 @@ passport.use(new GoogleStrategy({
 // example does not have a database, the complete Facebook profile is serialized
 // and deserialized.
 passport.serializeUser(function (user, cb) {
-    console.log(user);
     process.nextTick(function () {
         cb(null, { id: user.userId });
     });
 });
 
 passport.deserializeUser(async function (user, cb) {
-    console.log(user);
     process.nextTick(async function () {
         let fullUserDetails = await getUser(user.id);
         if (fullUserDetails) {
@@ -58,6 +56,14 @@ passport.deserializeUser(async function (user, cb) {
 
 
 var router = express.Router();
+
+const userAuthCheck = function (req, res, next) {
+    if (!req.user) {
+        console.log("Auth check failed. Redirecting to login.");
+        return res.render('login');
+    }
+    next();
+}
 
 /* GET /login
  *
@@ -102,7 +108,10 @@ router.get('/oauth2/redirect/google', passport.authenticate('google', {
  */
 router.post('/logout', function (req, res, next) {
     req.logout(function (err) {
-        if (err) { return next(err); }
+        if (err) { 
+            console.log(err);
+            return next(err); 
+        }
         res.redirect('/');
     });
 });

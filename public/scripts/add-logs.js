@@ -22,11 +22,11 @@ function fillDateTime() {
 }
 
 function validateForm() {
-    resetFormError();
+    resetDisplayError();
     try {
         if (noBoxesAreFilled()) {
             console.log("no forms filled");
-            handleFormError("Fill out one or more of: Blood Sugar, Meal, Insulin sections");
+            handleDisplayError("Fill out one or more of: Blood Sugar, Meal, Insulin sections");
             return false;
         }
     } catch (err) {
@@ -35,39 +35,21 @@ function validateForm() {
     }
 }
 
-function resetFormError() {
+function resetDisplayError() {
     let alert = document.getElementById('alert');
     if (alert) {
         alert.remove();
     }
-    // let form = document.getElementById('log-form');
-    // form.classList.remove('was-validated');
-    // setValid();
 }
 
-function handleFormError(errorString) {
+function handleDisplayError(errorString) {
     let siblingElement = document.getElementById('form-part-2');
     let errorDivHtml = `<div class="alert alert-warning" role="alert" id="alert">
                             ${errorString}
                         </div>`
     siblingElement.insertAdjacentHTML("afterend", errorDivHtml);
 
-    // setInvalid();
 }
-
-// function setInvalid() {
-//     let inputs = document.querySelectorAll('.log-inputs');
-//     inputs.forEach((input) => {
-//         input.classList.add('is-invalid');
-//     })
-// }
-
-// function setValid() {
-//     let inputs = document.querySelectorAll('.log-inputs');
-//     inputs.forEach((input) => {
-//         input.classList.remove('is-invalid');
-//     })
-// }
 
 function noBoxesAreFilled() {
     return mealIsEmpty() && insulinIsEmpty() && bloodSugarIsEmpty();
