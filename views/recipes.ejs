@@ -18,7 +18,9 @@
 
             <main class="container pt-4">
                 <row>
-                    <a href='#' onclick='return showSearchBox(event);' class='pb-4' id="a-new-recipe">Add new recipe</a>
+                    <!-- <a href='#' onclick='return showSearchBox(event);' class='pb-4' id="a-new-recipe">Add new recipe</a> -->
+                    <button onclick='return showSearchBox(event);' class='btn btn-dark' id="a-new-recipe">Add new recipe</button>
+                    <button onclick='return showSavedRecipes(event);' class='btn btn-dark' id="a-view-recipes" hidden>Back to recipes</button>
                 </row>
                 <row>
                     <div class="col-md-8 mx-auto pt-4" id="recipe-display-container">
