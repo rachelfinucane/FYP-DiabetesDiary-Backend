@@ -1,5 +1,15 @@
 const { sql, poolAsync } = require('./db');
 
+async function handleGetRecipesWithFilter(userId, filters) {
+    const pool = await poolAsync;
+    const queryString = `select ${filters} from recipe where userId =@userId;`
+    let result = await pool.request()
+        .input('userId', sql.UniqueIdentifier, userId, userId)
+        .query(queryString);
+    console.log(result.recordset);
+    return result.recordset;
+}
+
 async function handleGetRecipesByUserId(userId) {
     // How to use transactions:
     // From mssql docs https://tediousjs.github.io/node-mssql/#transaction
@@ -135,4 +145,4 @@ async function insertBulkIngredients(request, recipe) {
     console.log(result);
 }
 
-module.exports = { handleInsertRecipe, handleGetRecipesByUserId }
+module.exports = { handleInsertRecipe, handleGetRecipesByUserId, handleGetRecipesWithFilter }

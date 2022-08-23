@@ -4,7 +4,11 @@ const { decode } = require('html-entities');
 const { removeTabsAndReturns, convertFractionToFloat } = require('../helpers/recipes.js');
 const { roundDecimalPlaces } = require('../helpers/helpers.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
-const { handleGetRecipesByUserId, handleInsertRecipe,  } = require('../models/models_recipes.js');
+const { handleGetRecipesByUserId, handleInsertRecipe, handleGetRecipesWithFilter } = require('../models/models_recipes.js');
+
+async function getRecipesWithFilter(userId, filters){
+    return await handleGetRecipesWithFilter(userId, filters);
+}
 
 async function searchRecipes(recipeSite, keywords) {
     const googleAPIKey = process.env['GOOGLE_SEARCH_API_KEY'];
@@ -245,4 +249,4 @@ function getYieldsAmount(string) {
     }) / unParsedYield.length;
 }
 
-module.exports = { scrapeNutritionInfo, searchRecipes, saveRecipe, getRecipesByUserId};
+module.exports = { scrapeNutritionInfo, searchRecipes, saveRecipe, getRecipesByUserId, getRecipesWithFilter};
