@@ -11,15 +11,9 @@ window.addEventListener('load', () => {
     makeGetRequest(url = '/recipes/userId', params = '')
         .then((data) => {
             console.log(data);
-            displayRecipes(data);
+            showSavedRecipes(data);
         }).catch(err => { console.log(err); });
 });
-
-function displayRecipes(recipes) {
-    recipes.map(recipe => {
-
-    });
-}
 
 // Some boilerplate taken from here:
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
@@ -96,14 +90,33 @@ function showSearchBox() {
     searchBoxContainer.innerHTML = searchBoxHtml;
 }
 
-function showSavedRecipes() {
+function showSavedRecipes(recipes) {
     resetDisplayError();
     let searchResultsContainer = document.getElementById('search-results-container');
     searchResultsContainer.innerHTML = "";
     linkGoesToAddRecipe();
     let searchBox = document.getElementById('search-box-container');
     searchBox.innerHTML = "";
+    
     // Then show all recipes
+    const recipeDisplayContainer = document.getElementById('recipe-display-container');
+    recipeDisplayContainer.innerHTML = "";
+
+    recipes.map(recipe => {
+        let recipeCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card">
+                                    <div class="row g-0">
+                                        <div class="col-md-8">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${recipe.recipeName}</a></h5>
+                                                <p class="card-text">${recipe.recipeInstructions}</p>                                   
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`
+
+        recipeDisplayContainer.innerHTML += recipeCardHtml;
+
+    });
 }
 
 function linkGoesToAddRecipe() {
@@ -146,22 +159,22 @@ function displaySearchResults(searchResults) {
 
     searchResults.map((result, index) => {
         const resultCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card-${index}">
-                            <div class="row g-0">
-                            <div class="col-md-4">
-                                <img src="${result.pagemap.cse_image[0].src}" class="rounded-start h-100 w-100 googleThumbnail" alt="Image preview for link">
-                            </div>
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                    <h5 class="card-title"><a class='text-dark ${index}' href='${result.link}'>${result.htmlTitle}</a></h5>
-                                    <p class="card-text">${result.htmlSnippet}</p>
-                                    <div class="d-grid gap-2 d-md-block">
-                                        <button class="btn btn-light" id="view-btn-${index}" type="button">View Recipe Information</button> <!-- Gets Recipe Info -->
-                                        <button class="btn btn-light" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
-                                    </div>                                    
-                                </div>
-                            </div>
-                            </div>
-                        </div>`
+                                    <div class="row g-0">
+                                    <div class="col-md-4">
+                                        <img src="${result.pagemap.cse_image[0].src}" class="rounded-start h-100 w-100 googleThumbnail" alt="Image preview for link">
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a class='text-dark ${index}' href='${result.link}'>${result.htmlTitle}</a></h5>
+                                            <p class="card-text">${result.htmlSnippet}</p>
+                                            <div class="d-grid gap-2 d-md-block">
+                                                <!-- <button class="btn btn-light" id="view-btn-${index}" type="button">View Recipe Information</button> --> <!-- Gets Recipe Info -->
+                                                <button class="btn btn-light" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
+                                            </div>                                    
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>`;
         searchResultsContainer.innerHTML += resultCardHtml;
     });
 }
