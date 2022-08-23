@@ -38,14 +38,12 @@ passport.use(new GoogleStrategy({
 // example does not have a database, the complete Facebook profile is serialized
 // and deserialized.
 passport.serializeUser(function (user, cb) {
-    console.log(user);
     process.nextTick(function () {
         cb(null, { id: user.userId });
     });
 });
 
 passport.deserializeUser(async function (user, cb) {
-    console.log(user);
     process.nextTick(async function () {
         let fullUserDetails = await getUser(user.id);
         if (fullUserDetails) {

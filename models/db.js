@@ -18,6 +18,6 @@ sql.on('error', err => {
 // Logic for exporting an awaited object came from here
 // https://stackoverflow.com/a/30356582
 
-let poolAsync = getPool();
+const poolAsync = getPool();
 
 module.exports = { sql, poolAsync }

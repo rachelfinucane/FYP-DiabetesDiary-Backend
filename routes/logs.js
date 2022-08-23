@@ -25,7 +25,6 @@ router.get('/logs', [userAuthCheck], async function (req, res, next) {
 /* POST logs */
 router.post('/logs', [userAuthCheck],
     function (req, res) {
-        console.log(req.body);
         let newLog = req.body;
         delete newLog._csrf;
         newLog.userId = req.user.userId;

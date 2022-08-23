@@ -14,20 +14,19 @@ const userAuthCheck = function (req, res, next) {
     next();
 }
 
-// Fetch helper
-// Some boilerplate taken from here:
-// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-async function fetchData(url) {
-    // ref: https://www.npmjs.com/package/csurf
-    // See 'Using Ajax' Section
+// Ref: wanted a replacement for IsNullOrWhiteSpace from C#
+// This had a replacement function: https://stackoverflow.com/a/5559461
+function isNullOrWhitespace(input) {
 
-    console.log('fetching from ', url);
-    // const response = await fetch(url, {
-    //     credentials: 'omit',
-    //     method: 'GET'
-    // });
+    if (typeof input === 'undefined' || input == null) return true;
 
-    // return response;
+    return input.replace(/\s/g, '').length < 1;
 }
 
-module.exports = {objectNotEmpty, userAuthCheck, fetchData}
+// Ref https://learnersbucket.com/examples/javascript/learn-how-to-round-to-2-decimal-places-in-javascript/
+function roundDecimalPlaces(input, places) {
+    const x = Math.pow(10, places);
+    return Math.round(input * x) / x;
+}
+
+module.exports = { objectNotEmpty, userAuthCheck, isNullOrWhitespace, roundDecimalPlaces }

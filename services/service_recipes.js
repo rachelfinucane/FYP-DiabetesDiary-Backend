@@ -2,7 +2,9 @@ const axios = require('axios');
 const { parse } = require('node-html-parser')
 const { decode } = require('html-entities');
 const { removeTabsAndReturns, convertFractionToFloat } = require('../helpers/recipes.js');
+const { roundDecimalPlaces } = require('../helpers/helpers.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
+const { handleInsertRecipe } = require('../models/models_recipes.js');
 
 async function searchRecipes(recipeSite, keywords) {
     const googleAPIKey = process.env['GOOGLE_SEARCH_API_KEY'];
@@ -24,6 +26,13 @@ async function searchRecipes(recipeSite, keywords) {
         console.log(err);
         throw new Error("Could not connect to the Google Search API");
     }
+}
+
+async function saveRecipe(url, userId) {
+    result = await scrapeNutritionInfo(url);
+    handleInsertRecipe(result, userId);
+    // console.log(result);
+    return { data: { message: "saved" } };
 }
 
 function getRecipeSiteUrl(recipeSite) {
@@ -63,17 +72,16 @@ async function scrapeBBC(url) {
     const root = parse(response.data.toString());
     const infoNode = root.getElementById('__NEXT_DATA__');
     const infoContent = (JSON.parse(infoNode.innerHTML)).props.pageProps;
-    // console.log(infoContent);
     const carbsPerServing = getCarbs(infoContent.nutritionalInfo);
     const yieldsAmount = getYieldsAmount(infoContent.servings);
-    const ingredients = getIngredients();
+    const ingredients = infoContent.ingredients; // store ingredients and their amounts together
     const instructions = getInstructions();
     return {
         recipeName: infoContent.title,
         yields: yieldsAmount,
-        instructions: instructions,
+        instructions: instructions.join('\n'),
         // description: infoContent.description,
-        ingredients: ingredients,
+        ingredients: getIngredients(),
         carbsPerServing: carbsPerServing,
         type: "included with recipe"
     }
@@ -87,12 +95,14 @@ async function scrapeBBC(url) {
     }
 
     function getIngredients() {
-        let unparsedIngredientList = infoContent.ingredients.flat();
         return infoContent.ingredients.map(section => {
             return section.ingredients.map(ingredient => {
                 return {
-                    "ingredientName": ingredient.ingredientText + ingredient.note,
-                    "ingredientAmount": ingredient.quantityText
+                    ingredientName: ingredient.quantityText.concat(" ", ingredient.ingredientText),
+                    "ingredientAmount": null,
+                    "ingredientUnit": null,
+                    "apiFoodName": null,
+                    "carbs": null
                 }
             })
         }).flat();
@@ -122,13 +132,16 @@ async function myRecipes(url) {
         parsedIngredients
     });
 
-    console.log(ingredientsWithNutrition);
+    const totalCarbs = calculateTotalCarbs(ingredientsWithNutrition);
+    const carbsPerServing = calculateCarbsPerServing(totalCarbs, yieldsAmount);
 
     return ({
         recipeName: recipeName,
         yields: yieldsAmount,
         instructions: instructions,
         ingredients: ingredientsWithNutrition,
+        totalCarbs: totalCarbs,
+        carbsPerServing: carbsPerServing,
         type: "manually calculated"
     });
 
@@ -139,15 +152,15 @@ async function myRecipes(url) {
             const checkboxListInput = ingredient.querySelector('.checkbox-list-input');
 
             // decode html special characters
-            let ingredientAmount = convertFractionToFloat(checkboxListInput
-                .getAttribute('data-quantity'));
+            let ingredientAmount = convertFractionToFloat(checkboxListInput.getAttribute('data-quantity'));
+            let ingredientAmountRounded = roundDecimalPlaces(ingredientAmount, 2);
             let ingredientUnit = checkboxListInput.getAttribute('data-unit');
 
             let ingredientName = getIngredientName(checkboxListInput);
 
             parsedIngredients.push({
                 ingredientName,
-                ingredientAmount,
+                ingredientAmount:ingredientAmountRounded,
                 ingredientUnit
             });
 
@@ -171,11 +184,22 @@ async function myRecipes(url) {
     function getInstructions() {
         let instructions = infoContent[1].recipeInstructions;
         instructions = instructions.map(instruction => { return instruction.text; });
-        return instructions;
+        return instructions.join('\n');
     }
 
     function getRecipeName() {
         return infoContent[1].name;
+    }
+
+    function calculateTotalCarbs(ingredients) {
+        return ingredients
+            .filter(ingredient => { return ingredient.recipeIngredientCarbs != null })
+            .map(ingredient => { return parseFloat(ingredient.recipeIngredientCarbs) })
+            .reduce((prev, curr) => { return prev + curr });
+    }
+
+    function calculateCarbsPerServing(totalCarbs, yieldsAmount) {
+        return totalCarbs / parseFloat(yieldsAmount);
     }
 }
 
@@ -189,14 +213,12 @@ async function scrapeGoodHousekeeping(url) {
 
     const yieldsAmount = removeTabsAndReturns(root.querySelector('.yields-amount').childNodes[0].text);
     const yieldsUnit = removeTabsAndReturns(root.querySelector('.yields-unit').text);
-    console.log('yieldsAmount:', yieldsAmount, '\nyeildsUnit:', yieldsUnit);
 
     ingredientList.forEach(ingredient => {
         let ingredientAmount = ingredient.querySelector('.ingredient-amount')?.innerHTML;
 
         // Ref: https://stackoverflow.com/a/22921273
         ingredientAmount = removeTabsAndReturns(ingredientAmount);
-        console.log(ingredientAmount);
 
         let ingredientDescription = ingredient.querySelector('.ingredient-description')
             ?.querySelector('p')?.innerHTML;
@@ -205,8 +227,6 @@ async function scrapeGoodHousekeeping(url) {
         if (ingredientDescription.includes(',')) {
             ingredientDescription = ingredientDescription.split(',').slice(0, -1).join();
         }
-
-        console.log(ingredientDescription);
     });
 
     // let template = { ingredients:[ingredientName, ingredientAmount, ingredientUnit], yieldsAmount, yieldsUnit };
@@ -218,12 +238,9 @@ function getYieldsAmount(string) {
     let unParsedYield = string.match(/\d+\s?(-|to)?\s?\d*/);
     unParsedYield = unParsedYield[0].match(/\d+/g);
 
-    let yieldsAmount = unParsedYield.reduce((prev, curr) => {
-        console.log(parseFloat(prev), parseFloat(curr));
+    return unParsedYield.reduce((prev, curr) => {
         return (parseFloat(prev) + parseFloat(curr));
     }) / unParsedYield.length;
-    console.log(yieldsAmount);
-    return yieldsAmount;
 }
 
-module.exports = { scrapeNutritionInfo, searchRecipes };
+module.exports = { scrapeNutritionInfo, searchRecipes, saveRecipe };

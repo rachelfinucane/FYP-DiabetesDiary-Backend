@@ -96,7 +96,7 @@ function extractNutritionFromAPIFood(food, ingredient, unit, unitDict) {
     let apiFoodServingSize = food.servingSize;
     let carbsPerServing = carbInfo.value;
 
-    let recipeIngredientCarbs = (carbsPerServing / apiFoodServingSize) * recipeIngredientAmount;
+    let recipeIngredientCarbs = ((carbsPerServing / apiFoodServingSize) * recipeIngredientAmount).toFixed(2);
 
     return {
         ingredientName: ingredient.ingredientName,
@@ -138,7 +138,7 @@ function getAPIFoodByServingDescription(apiFoodResult, unit, unitDict) {
     if (food) {
         let matchedServingDescription = food.householdServingFullText.match(unitRegex);
         let [amount, descriptionUnit] = matchedServingDescription.input.split(' ');
-        amount = convertFractionToFloat(amount);
+        amount = convertFractionToFloat(amount).toFixed(2);
         food.servingSize = amount;
         food.servingSizeUnit = descriptionUnit;
         return food;

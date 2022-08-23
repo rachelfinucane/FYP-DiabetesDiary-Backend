@@ -1,4 +1,5 @@
 const parseFract = require('parse-fraction');
+const { isNullOrWhitespace } = require('../helpers/helpers.js');
 
 const weightDict = {
     'pounds': 'lb',
@@ -86,8 +87,16 @@ function removeTabsAndReturns(string) {
 }
 
 function convertFractionToFloat(numberString) {
-    let fraction = parseFract(numberString);
-    return fraction[0] / fraction[1];
+    if (isNullOrWhitespace(numberString)) {
+        return numberString;
+    }
+    try {
+        let fraction = parseFract(numberString);
+        return fraction[0] / fraction[1];
+    } catch (err) {
+        console.error("There was a problem converting the fraction to a float ", numberString, " ", err.message);
+        throw new Error("There was a problem converting the fraction to a float ", numberString, " ", err.message);
+    }
 }
 
 module.exports = { weightDict, volumeDict, removeTabsAndReturns, convertFractionToFloat };

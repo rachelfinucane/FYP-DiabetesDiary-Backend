@@ -22,11 +22,11 @@ function fillDateTime() {
 }
 
 function validateForm() {
-    resetFormError();
+    resetDisplayError();
     try {
         if (noBoxesAreFilled()) {
             console.log("no forms filled");
-            handleFormError("Fill out one or more of: Blood Sugar, Meal, Insulin sections");
+            handleDisplayError("Fill out one or more of: Blood Sugar, Meal, Insulin sections");
             return false;
         }
     } catch (err) {
@@ -35,14 +35,14 @@ function validateForm() {
     }
 }
 
-function resetFormError() {
+function resetDisplayError() {
     let alert = document.getElementById('alert');
     if (alert) {
         alert.remove();
     }
 }
 
-function handleFormError(errorString) {
+function handleDisplayError(errorString) {
     let siblingElement = document.getElementById('form-part-2');
     let errorDivHtml = `<div class="alert alert-warning" role="alert" id="alert">
                             ${errorString}
