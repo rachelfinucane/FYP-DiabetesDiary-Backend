@@ -1,6 +1,6 @@
-var express = require('express');
-var passport = require('passport');
-var GoogleStrategy = require('passport-google-oidc');
+const express = require('express');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oidc');
 const { verifyUser, getUser } = require('../services/service_users')
 
 
@@ -12,8 +12,8 @@ const { verifyUser, getUser } = require('../services/service_users')
 // with a user object, which will be set at `req.user` in route handlers after
 // authentication.
 passport.use(new GoogleStrategy({
-    clientID: process.env['GOOGLE_CLIENT_ID'],
-    clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: '/oauth2/redirect/google',
     scope: ['profile']
 }, async (issuer, profile, cb) => {
@@ -55,7 +55,7 @@ passport.deserializeUser(async function (user, cb) {
 });
 
 
-var router = express.Router();
+const router = express.Router();
 
 const userAuthCheck = function (req, res, next) {
     if (!req.user) {

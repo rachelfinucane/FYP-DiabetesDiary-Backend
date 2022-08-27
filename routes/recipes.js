@@ -4,7 +4,6 @@ const { searchRecipes, saveRecipe, getRecipesByUserId, getRecipesWithFilter } = 
 const router = express.Router();
 
 router.get('/recipes', [userAuthCheck], async function (req, res) {
-    console.log(req.query);
     if (req.query.filters) {
         let response = await getRecipesWithFilter(req.user.userId, req.query.filters);
         res.json(response);
@@ -16,7 +15,6 @@ router.get('/recipes', [userAuthCheck], async function (req, res) {
 router.get('/recipes/userId', [userAuthCheck], async function (req, res, next) {
     try {
         const response = await getRecipesByUserId(req.user.userId);
-        console.log(response);
         res.json(response);
     } catch (err) {
         console.log(err);
