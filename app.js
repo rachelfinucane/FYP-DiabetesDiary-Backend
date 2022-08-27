@@ -11,9 +11,9 @@ const Redis = require('ioredis');
 const redisStore = require("connect-redis")(session);
 
 const client = new Redis({
-    host: process.env['REDIS_HOST'],
-    port: process.env['REDIS_PORT'],
-    password: process.env['REDIS_PASSWORD']
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD
 });
 
 const indexRouter = require('./routes/index');
@@ -27,8 +27,6 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.locals.pluralize = require('pluralize');
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -37,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(
     session({
-        secret: process.env['REDIS_SECRET'],
+        secret: process.env.REDIS_SECRET,
         resave: false,
         saveUninitialized: false,
         store: new redisStore({ client: client }),

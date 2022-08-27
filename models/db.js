@@ -1,7 +1,7 @@
 // From docs: https://www.npmjs.com/package/mssql#promises
 const sql = require('mssql')
 
-const connectionString = process.env['DB_CONNECTION_STRING'];
+const connectionString = process.env.DB_CONNECTION_STRING;
 
 /**
  * 
