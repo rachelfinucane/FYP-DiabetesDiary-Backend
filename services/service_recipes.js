@@ -117,8 +117,6 @@ async function scrapeBBC(url) {
     }
 }
 
-// TODO
-// remove accents
 async function myRecipes(url) {
     let response = await axios.get(url);
     const root = parse(response.data.toString());
