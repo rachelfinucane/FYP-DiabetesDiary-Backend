@@ -82,7 +82,7 @@ const insertMeal = async (request, meal) => {
             sqlQuery = "INSERT INTO Meal (mealName, recipeId, totalCarbs, recipeServings) OUTPUT inserted.mealId VALUES (@mealName, @recipeId, @totalCarbs, @recipeServings)"
 
         } else {
-            sqlQuery = "INSERT INTO Meal (mealName, totalCarbs) OUTPUT inserted.mealId VALUES (@mealName, @totalCarbs, @weight)";
+            sqlQuery = "INSERT INTO Meal (mealName, totalCarbs) OUTPUT inserted.mealId VALUES (@mealName, @totalCarbs)";
         }
 
         request.input("mealName", sql.VarChar(100), meal.mealName);

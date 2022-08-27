@@ -7,7 +7,6 @@ window.addEventListener('load', () => {
 function getSavedRecipesFromServer() {
     makeGetRequest(url = '/recipes/userId', params = '')
         .then((data) => {
-            console.log(data);
             localStorage.setItem('recipes', JSON.stringify(data));
             showSavedRecipes();
         }).catch(err => { console.log(err); });
@@ -19,7 +18,6 @@ async function makeGetRequest(url) {
     // ref: https://www.npmjs.com/package/csurf
     // See 'Using Ajax' Section
     const token = document.getElementById('csrf-token').content;
-    console.log(token);
 
     return await fetch(url, {
         credentials: 'same-origin',
@@ -90,12 +88,11 @@ function showSearchBox(event) {
     let recipeDisplayContainer = document.getElementById('recipe-display-container');
     searchBoxContainer.innerHTML = searchBoxHtml;
     recipeDisplayContainer.innerHTML = "";
-    console.log("clicked");
 }
 
 function showSavedRecipes() {
     resetDisplayError();
-    
+
     let searchResultsContainer = document.getElementById('search-results-container');
     let searchBox = document.getElementById('search-box-container');
 
@@ -103,22 +100,76 @@ function showSavedRecipes() {
     searchBox.innerHTML = "";
 
     displaySearchBoxButton();
-    
+
     // Then show all recipes
     const recipeDisplayContainer = document.getElementById('recipe-display-container');
     recipeDisplayContainer.innerHTML = "";
 
     const recipes = JSON.parse(localStorage.getItem('recipes'));
     recipes.map(recipe => {
+        // let recipeCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card">
+        //                             <div class="row g-0">
+        //                                 <div class="col-md-8">
+        //                                     <div class="card-body">
+        //                                         <h5 class="card-title">${recipe.recipeName}</a></h5>
+        //                                         <p class="card-text">${recipe.recipeInstructions}</p>                                   
+        //                                     </div>
+        //                                 </div>
+        //                             </div>
+        //                         </div>`
+
+        let ingredientsHtml = "";
+        if (recipe.recipeType == 'included with recipe') {
+            recipe.ingredients.forEach(ingredient => {
+                ingredientsHtml += `<p class="card-text">${ingredient.ingredientName}</p>`;
+            });
+        } else {
+            recipe.ingredients.forEach(ingredient => {
+                ingredientsHtml += `<p class="card-text">${ingredient.ingredientAmount} ${ingredient.ingredientUnit} ${ingredient.ingredientName}</p>`;
+            });
+        }
+
         let recipeCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card">
-                                    <div class="row g-0">
-                                        <div class="col-md-8">
+                                    
                                             <div class="card-body">
                                                 <h5 class="card-title">${recipe.recipeName}</a></h5>
-                                                <p class="card-text">${recipe.recipeInstructions}</p>                                   
+                                                <!-- Decided not to display images for copyright reasons -->
+                                                <!-- <div class="col-md-4">
+                                                    <img src="${recipe.recipeImageUrl}" class="rounded-start h-100 w-100 googleThumbnail" alt="Recipe Image">
+                                                </div> -->
+                                                <p class="card-text">Yields: ${recipe.recipeYields} Carbs Per Serving: ${recipe.carbsPerServing}</p>
+
+                                                <div class="col mx-auto pt-4" id="recipe-display-container">
+                                                <div class="accordion accordion-flush" id="recipe-collapse-${recipe.recipeId}">
+                                                    <div class="accordion-item">
+                                                      <h2 class="accordion-header" id="ingredients-heading-${recipe.recipeId}">
+                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-ingredients-${recipe.recipeId}" aria-expanded="false" aria-controls="flush-collapse-ingredients-${recipe.recipeId}">
+                                                          Ingredients
+                                                        </button>
+                                                      </h2>
+                                                      <div id="flush-collapse-ingredients-${recipe.recipeId}" class="accordion-collapse collapse" aria-labelledby="ingredients-heading-${recipe.recipeId}" >
+                                                        <div class="accordion-body">
+                                                        <p class="card-text">${ingredientsHtml}</p>                                   
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                      <h2 class="accordion-header" id="flush-headingTwo">
+                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-instructions-${recipe.recipeId}" aria-expanded="false" aria-controls="flush-collapse-instructions-${recipe.recipeId}">
+                                                          Instructions
+                                                        </button>
+                                                      </h2>
+                                                      <div id="flush-collapse-instructions-${recipe.recipeId}" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" >
+                                                        <div class="accordion-body">
+                                                            ${recipe.recipeInstructions}                                 
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                
                                             </div>
-                                        </div>
-                                    </div>
+                                            </div>
+                                        
                                 </div>`
 
         recipeDisplayContainer.innerHTML += recipeCardHtml;
@@ -153,7 +204,6 @@ function searchRecipes(event) {
     let url = `/search-recipes?recipeSite=${recipeSite}&keywords=${keywords}`;
     makeGetRequest(url = url)
         .then((data) => {
-            console.log(data);
             displaySearchResults(data);
         }).catch(err => {
             handleDisplayError(err.message);
@@ -191,11 +241,14 @@ function displaySearchResults(searchResults) {
 function saveRecipe(event) {
     const cardElement = event.target.parentNode.parentNode;
     let recipeUrl = cardElement.querySelector('a').getAttribute('href');
+    const cardParentElement = cardElement.parentNode.parentNode;
+    console.log(cardParentElement);
+    let recipeImageUrl = cardParentElement.querySelector('img').getAttribute('src');
     const url = '/save-recipe';
 
     // Some boilerplate taken from here:
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-    makePostRequest(url, { recipeUrl: recipeUrl })
+    makePostRequest(url, { recipeUrl: recipeUrl, recipeImageUrl:recipeImageUrl })
         .then(() => {
             getSavedRecipesFromServer();
         })

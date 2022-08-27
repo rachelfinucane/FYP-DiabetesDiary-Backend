@@ -33,10 +33,10 @@ async function searchRecipes(recipeSite, keywords) {
     }
 }
 
-async function saveRecipe(url, userId) {
+async function saveRecipe(url, userId, recipeImageUrl) {
     result = await scrapeNutritionInfo(url);
     console.log(result);
-    return await handleInsertRecipe(result, userId);
+    return await handleInsertRecipe(result, userId, recipeImageUrl);
 }
 
 async function getRecipesByUserId(userId) {
