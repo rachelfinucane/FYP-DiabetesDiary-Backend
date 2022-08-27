@@ -1,7 +1,6 @@
 const { handleInsertLog, handleSelectLogs } = require('../models/models_logs.js')
 
 function addLog(logInput) {
-    console.log(logInput);
 
     let newLog = {
         userId: logInput.userId,
@@ -21,7 +20,6 @@ function addLog(logInput) {
 
     if (logInput['recipeSelect'] != null) {
         let [recipeId, _] = logInput.recipeSelect.split(';');
-        console.log("recipeId", recipeId, "end string");
         if (recipeId !== "default") {
             newLog.meal.recipeId = recipeId;
             newLog.meal.recipeServings = logInput.servingsInput

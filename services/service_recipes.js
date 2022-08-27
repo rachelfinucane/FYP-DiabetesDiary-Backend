@@ -5,15 +5,14 @@ const { removeTabsAndReturns, convertFractionToFloat } = require('../helpers/rec
 const { roundDecimalPlaces } = require('../helpers/helpers.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
 const { handleGetRecipesByUserId, handleInsertRecipe, handleGetRecipesWithFilter } = require('../models/models_recipes.js');
-const { json } = require('express');
 
 async function getRecipesWithFilter(userId, filters){
     return await handleGetRecipesWithFilter(userId, filters);
 }
 
 async function searchRecipes(recipeSite, keywords) {
-    const googleAPIKey = process.env['GOOGLE_SEARCH_API_KEY'];
-    const googleSearchEngine = process.env['GOOGLE_PROGRAMMABLE_SEARCH_ENGINE'];
+    const googleAPIKey = process.env.GOOGLE_SEARCH_API_KEY;
+    const googleSearchEngine = process.env.GOOGLE_PROGRAMMABLE_SEARCH_ENGINE;
 
     const recipeSiteUrl = getRecipeSiteUrl(recipeSite);
     let query = recipeSiteUrl.concat(' ', keywords);
@@ -35,7 +34,6 @@ async function searchRecipes(recipeSite, keywords) {
 
 async function saveRecipe(url, userId, recipeImageUrl) {
     result = await scrapeNutritionInfo(url);
-    console.log(result);
     return await handleInsertRecipe(result, userId, recipeImageUrl);
 }
 
@@ -119,8 +117,6 @@ async function scrapeBBC(url) {
     }
 }
 
-// TODO
-// remove accents
 async function myRecipes(url) {
     let response = await axios.get(url);
     const root = parse(response.data.toString());

@@ -202,8 +202,6 @@ function getLocals() {
     const carbsPerServing = localStorage.getItem("carbsPerServing");
     const numberOfServings = localStorage.getItem("numberOfServings");
 
-    console.log(selectedValue);
-
     selectedValueInput.value = selectedValue;
     carbsPerServingInput.value = carbsPerServing;
     numberOfServingsInput.value = numberOfServings;
@@ -217,8 +215,6 @@ function setLocals() {
     const selectedValue = selectedValueInput.value;
     const carbsPerServing = carbsPerServingInput.value;
     const numberOfServings = numberOfServingsInput.value;
-
-    console.log(selectedValue);
 
     localStorage.setItem("selectedValue", selectedValue);
     localStorage.setItem("carbsPerServing", carbsPerServing);

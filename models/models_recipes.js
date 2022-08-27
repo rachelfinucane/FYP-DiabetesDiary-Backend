@@ -6,7 +6,6 @@ async function handleGetRecipesWithFilter(userId, filters) {
     let result = await pool.request()
         .input('userId', sql.UniqueIdentifier, userId, userId)
         .query(queryString);
-    console.log(result.recordset);
     return result.recordset;
 }
 
@@ -34,7 +33,6 @@ async function handleGetRecipesByUserId(userId) {
         .input('userId', sql.UniqueIdentifier, userId, userId)
         .query(queryString);
 
-    // console.log(result.recordset[0]);
     return result.recordset[0];
 }
 
@@ -69,11 +67,8 @@ async function insertRecipe(recipe, userId, pool, recipeImageUrl) {
             .input("recipeImageUrl", sql.VarChar(1000), recipeImageUrl)
             .query(queryString);
 
-        console.log(result.recordsets[0][0]);
-
         return result.recordsets[0][0];
     } catch (err) {
-        console.log(queryString);
         throw new Error("Error inserting into recipe: ", queryString, err.message);
     }
 }
@@ -100,7 +95,6 @@ async function insertIngredients(recipe) {
 
         return result.recordsets[0];
     } catch (err) {
-        console.log(queryString);
         throw new Error("Error inserting into Ingredients: ", queryString, err.message);
     }
 }
@@ -123,7 +117,6 @@ async function insertIngredientList(recipeId, ingredientIds) {
 
         return result.recordsets[0];
     } catch (err) {
-        console.log(queryString);
         throw new Error("Error inserting into ingredients list: ", queryString, err.message);
     }
 }
@@ -145,12 +138,10 @@ async function insertBulkIngredients(request, recipe) {
     ingredientTable.columns.add('carbs', sql.Decimal(7, 2), { nullable: true });
 
     recipe.ingredients.forEach(ingredient => {
-        console.log(ingredient);
         ingredientTable.rows.add(ingredient.ingredientName, ingredient.ingredientAmount, ingredient.ingredientUnit, ingredient.apiFoodName, ingredient.recipeIngredientCarbs);
     });
 
     result = await request.bulk(ingredientTable);
-    console.log(result);
 }
 
 module.exports = { handleInsertRecipe, handleGetRecipesByUserId, handleGetRecipesWithFilter }
