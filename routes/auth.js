@@ -1,6 +1,6 @@
-var express = require('express');
-var passport = require('passport');
-var GoogleStrategy = require('passport-google-oidc');
+const express = require('express');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oidc');
 const { verifyUser, getUser } = require('../services/service_users')
 
 
@@ -55,7 +55,7 @@ passport.deserializeUser(async function (user, cb) {
 });
 
 
-var router = express.Router();
+const router = express.Router();
 
 const userAuthCheck = function (req, res, next) {
     if (!req.user) {

@@ -1,4 +1,4 @@
-var express = require('express');
+const express = require('express');
 
 // https://stackabuse.com/javascript-check-if-an-object-is-empty/
 const objectNotEmpty = (obj) => {
