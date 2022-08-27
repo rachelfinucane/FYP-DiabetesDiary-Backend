@@ -19,11 +19,11 @@ async function handleGetRecipesByUserId(userId) {
     const queryString = "SELECT DISTINCT (" +
         "SELECT r.recipeId, carbsPerServing, totalCarbs, recipeType, " +
         "recipeInstructions, recipeYields, recipeName, ingredientName, " +
-        "ingredientAmount, ingredientUnit, apiFoodName, carbs " +
+        "ingredientAmount, ingredientUnit, apiFoodName, carbs, recipeImageUrl " +
         "FROM Users as u " +
         "JOIN Recipe as r ON (u.userId = r.userId) " +
         "JOIN IngredientList as il ON (r.recipeId = il.recipeId) " +
-        "JOIN Ingredient i ON (il.ingredientId = i.ingredientId) " +
+        "JOIN Ingredient as ingredients ON (il.ingredientId = ingredients.ingredientId) " +
         "WHERE u.userId = @userId " +
         // THIS IS VERY COOL AND HANDY
         "FOR JSON AUTO " +
@@ -38,24 +38,24 @@ async function handleGetRecipesByUserId(userId) {
     return result.recordset[0];
 }
 
-async function handleInsertRecipe(newRecipe, userId) {
+async function handleInsertRecipe(newRecipe, userId, recipeImageUrl) {
     // How to use transactions:
     // From mssql docs https://tediousjs.github.io/node-mssql/#transaction
     // Use with await/async: https://stackoverflow.com/a/68832025
     const pool = await poolAsync;
 
-    const recipeId = await insertRecipe(newRecipe, userId, pool);
+    const recipeId = await insertRecipe(newRecipe, userId, pool, recipeImageUrl);
     const ingredientIds = await insertIngredients(newRecipe);
 
     await insertIngredientList(recipeId, ingredientIds);
 }
 
-async function insertRecipe(recipe, userId, pool) {
+async function insertRecipe(recipe, userId, pool, recipeImageUrl) {
 
     const queryString = "INSERT INTO Recipe (userId, carbsPerServing, totalCarbs, recipeType, " +
-        "recipeInstructions, recipeYields, recipeName) OUTPUT inserted.recipeId " +
+        "recipeInstructions, recipeYields, recipeName, recipeImageUrl) OUTPUT inserted.recipeId " +
         "VALUES (@userId, @carbsPerServing, @totalCarbs, @recipeType, @recipeInstructions, " +
-        "@recipeYields, @recipeName)"
+        "@recipeYields, @recipeName, @recipeImageUrl)"
 
     try {
         const result = await pool.request()
@@ -66,6 +66,7 @@ async function insertRecipe(recipe, userId, pool) {
             .input("recipeInstructions", sql.VarChar(8000), recipe.instructions)
             .input("recipeYields", sql.TinyInt, recipe.yields)
             .input("recipeName", sql.VarChar(500), recipe.recipeName)
+            .input("recipeImageUrl", sql.VarChar(1000), recipeImageUrl)
             .query(queryString);
 
         console.log(result.recordsets[0][0]);

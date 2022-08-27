@@ -42,9 +42,12 @@ router.get('/search-recipes', [userAuthCheck], async function (req, res, next) {
     }
 });
 
+
+// should really be just post /recipe
+// to stay restful
 router.post('/save-recipe', [userAuthCheck], async function (req, res, next) {
     try {
-        let response = await saveRecipe(req.body.recipeUrl, req.user.userId);
+        let response = await saveRecipe(req.body.recipeUrl, req.user.userId, req.body.recipeImageUrl);
 
         res.redirect('/recipes');
     } catch (err) {
