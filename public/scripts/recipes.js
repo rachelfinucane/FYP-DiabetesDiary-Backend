@@ -107,17 +107,7 @@ function showSavedRecipes() {
 
     const recipes = JSON.parse(localStorage.getItem('recipes'));
     recipes.map(recipe => {
-        // let recipeCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card">
-        //                             <div class="row g-0">
-        //                                 <div class="col-md-8">
-        //                                     <div class="card-body">
-        //                                         <h5 class="card-title">${recipe.recipeName}</a></h5>
-        //                                         <p class="card-text">${recipe.recipeInstructions}</p>                                   
-        //                                     </div>
-        //                                 </div>
-        //                             </div>
-        //                         </div>`
-
+        
         let ingredientsHtml = "";
         if (recipe.recipeType == 'included with recipe') {
             recipe.ingredients.forEach(ingredient => {
