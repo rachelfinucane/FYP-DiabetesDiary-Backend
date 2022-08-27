@@ -63,12 +63,9 @@ function handleSelectChanges() {
 
 function fillSelect(recipes) {
     let recipeSelect = document.getElementById('recipe-name-select');
-    // console.log(recipeSelect.innerHTML += '<option id="recipe-select-default" selected="">Choose recipe name...</option>');
     recipes.map(recipe => {
-        // const optionHtml = '<option id="recipe-select-default" selected>Choose recipe name...</option>'
         const optionHtml = `<option value="${recipe.recipeId};${recipe.carbsPerServing}" id="${recipe.recipeId};${recipe.carbsPerServing}" >${recipe.recipeName}</option>`;
         recipeSelect.innerHTML += optionHtml;
-        // optionHtml = `<option id="${recipe.recipeId}" value=${recipe.recipeId}>${recipe.recipeName}</option>`;
         recipeSelect.innerHtml += optionHtml;
     });
 }
