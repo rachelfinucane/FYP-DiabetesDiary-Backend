@@ -1,6 +1,8 @@
 const express = require('express');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oidc');
+const FacebookStrategy = require('passport-facebook');
+
 const { verifyUser, getUser } = require('../services/service_users')
 
 
@@ -19,6 +21,24 @@ passport.use(new GoogleStrategy({
 }, async (issuer, profile, cb) => {
     try {
         let user = await verifyUser(issuer, profile);
+        return cb(null, user);
+    }
+    catch (err) {
+        console.log(err);
+        return cb(err);
+    }
+
+}));
+
+passport.use(new FacebookStrategy({
+    clientID: process.env.FACEBOOK_APP_ID,
+    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+    callbackURL: '/oauth2/redirect/facebook',
+    profileFields: ["email", "name"]
+}, async (accessToken, refreshToken, profile, cb) => {
+    try {
+        console.log(accessToken, refreshToken, profile);
+        let user = await verifyUser('facebook.com', profile);
         return cb(null, user);
     }
     catch (err) {
@@ -98,6 +118,13 @@ router.get('/login/federated/google', passport.authenticate('google'));
     user returns, they are signed in to their linked account.
 */
 router.get('/oauth2/redirect/google', passport.authenticate('google', {
+    successReturnToOrRedirect: '/',
+    failureRedirect: '/login'
+}));
+
+router.get('/login/federated/facebook', passport.authenticate('facebook'));
+
+router.get('/oauth2/redirect/facebook', passport.authenticate('facebook', {
     successReturnToOrRedirect: '/',
     failureRedirect: '/login'
 }));
