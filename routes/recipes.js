@@ -22,13 +22,13 @@ router.get('/recipes/userId', [userAuthCheck], async function (req, res, next) {
     }
 });
 
-// router.get('/recipe-info', [userAuthCheck], async function (req, res, next) {
-//     try {
-//         let response = await scrapeNutritionInfo(req.query.recipe);
-//     } catch (err) {
-//         next(err);
-//     }
-// });
+router.get('/recipe/:recipe', [userAuthCheck], async function (req, res, next) {
+    try {
+        let response = await scrapeNutritionInfo(req.params.recipe);
+    } catch (err) {
+        next(err);
+    }
+});
 
 router.get('/search-recipes', [userAuthCheck], async function (req, res, next) {
     try {

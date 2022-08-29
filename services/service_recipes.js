@@ -234,7 +234,6 @@ async function scrapeGoodHousekeeping(url) {
         }
     });
 
-    // let template = { ingredients:[ingredientName, ingredientAmount, ingredientUnit], yieldsAmount, yieldsUnit };
     return ({ list: "kljflaksjdf" });
 }
 

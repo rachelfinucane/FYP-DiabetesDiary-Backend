@@ -107,17 +107,7 @@ function showSavedRecipes() {
 
     const recipes = JSON.parse(localStorage.getItem('recipes'));
     recipes.map(recipe => {
-        // let recipeCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card">
-        //                             <div class="row g-0">
-        //                                 <div class="col-md-8">
-        //                                     <div class="card-body">
-        //                                         <h5 class="card-title">${recipe.recipeName}</a></h5>
-        //                                         <p class="card-text">${recipe.recipeInstructions}</p>                                   
-        //                                     </div>
-        //                                 </div>
-        //                             </div>
-        //                         </div>`
-
+        
         let ingredientsHtml = "";
         if (recipe.recipeType == 'included with recipe') {
             recipe.ingredients.forEach(ingredient => {
@@ -132,7 +122,7 @@ function showSavedRecipes() {
         let recipeCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card">
                                     
                                             <div class="card-body">
-                                                <h5 class="card-title">${recipe.recipeName}</a></h5>
+                                                <h3 class="card-title">${recipe.recipeName}</a></h3>
                                                 <!-- Decided not to display images for copyright reasons -->
                                                 <!-- <div class="col-md-4">
                                                     <img src="${recipe.recipeImageUrl}" class="rounded-start h-100 w-100 googleThumbnail" alt="Recipe Image">
@@ -154,12 +144,12 @@ function showSavedRecipes() {
                                                       </div>
                                                     </div>
                                                     <div class="accordion-item">
-                                                      <h2 class="accordion-header" id="flush-headingTwo">
+                                                      <h2 class="accordion-header" id="accordian-header-${recipe.recipeId}">
                                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-instructions-${recipe.recipeId}" aria-expanded="false" aria-controls="flush-collapse-instructions-${recipe.recipeId}">
                                                           Instructions
                                                         </button>
                                                       </h2>
-                                                      <div id="flush-collapse-instructions-${recipe.recipeId}" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" >
+                                                      <div id="flush-collapse-instructions-${recipe.recipeId}" class="accordion-collapse collapse" aria-labelledby="accordian-header-${recipe.recipeId}" >
                                                         <div class="accordion-body">
                                                             ${recipe.recipeInstructions}                                 
                                                         </div>
@@ -224,7 +214,7 @@ function displaySearchResults(searchResults) {
                                     </div>
                                     <div class="col-md-8">
                                         <div class="card-body">
-                                            <h5 class="card-title"><a class='text-dark ${index}' href='${result.link}'>${result.htmlTitle}</a></h5>
+                                            <h3 class="card-title"><a class='text-dark ${index}' href='${result.link}'>${result.htmlTitle}</a></h3>
                                             <p class="card-text">${result.htmlSnippet}</p>
                                             <div class="d-grid gap-2 d-md-block">
                                                 <!-- <button class="btn btn-light" id="view-btn-${index}" type="button">View Recipe Information</button> --> <!-- Gets Recipe Info -->
