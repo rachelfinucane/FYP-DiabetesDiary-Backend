@@ -1,3 +1,7 @@
+/**
+ * This file handles all business logic for recipes.
+ */
+
 const axios = require('axios');
 const { parse } = require('node-html-parser')
 const { decode } = require('html-entities');
@@ -6,10 +10,23 @@ const { roundDecimalPlaces } = require('../helpers/helpers.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
 const { handleGetRecipesByUserId, handleInsertRecipe, handleGetRecipesWithFilter } = require('../models/models_recipes.js');
 
-async function getRecipesWithFilter(userId, filters){
+/**
+ * Gets recipes for a given user. Returns only fields from filters.
+ * @param {string} userId userId
+ * @param {Array} filters array fields to fetch from db 
+ * @returns 
+ */
+async function getRecipesWithFilter(userId, filters) {
     return await handleGetRecipesWithFilter(userId, filters);
 }
 
+/**
+ * Searches the Google Search API with keywords and a 
+ * specific recipe site.
+ * @param {string} recipeSite site to pull recipe from
+ * @param {Array} keywords array of keywords to search
+ * @returns Array of search results
+ */
 async function searchRecipes(recipeSite, keywords) {
     const googleAPIKey = process.env.GOOGLE_SEARCH_API_KEY;
     const googleSearchEngine = process.env.GOOGLE_PROGRAMMABLE_SEARCH_ENGINE;
@@ -25,24 +42,44 @@ async function searchRecipes(recipeSite, keywords) {
     try {
         const response = await axios.get(googleUrl.href);
         const result = response.data;
-        return result.items;
+        if (result.items) {
+            return result.items;
+        } else {
+            return {message:"no items found"};
+        }
     } catch (err) {
         console.log(err);
         throw new Error("Could not connect to the Google Search API");
     }
 }
 
+/**
+ * 1. Scrape nutrition information from the recipe.
+ * 2. Save the recipe.
+ * @param {string} url recipe site URL
+ * @param {string} userId userId
+ * @param {string} recipeImageUrl url for recipe image
+ */
 async function saveRecipe(url, userId, recipeImageUrl) {
     result = await scrapeNutritionInfo(url);
     return await handleInsertRecipe(result, userId, recipeImageUrl);
 }
 
+/**
+ * gets recipes for a given user
+ * @param {string} userId userId (GUID)
+ * @returns recipes for a given user    
+ */
 async function getRecipesByUserId(userId) {
     let results = await handleGetRecipesByUserId(userId);
-    JSON.parse(results.recipe);
     return JSON.parse(results.recipe);
 }
 
+/**
+ * Takes a site name, grabs the corresponding URL from a dictionary.
+ * @param {string} recipeSite the website name
+ * @returns a string to tell Google what site to search for
+ */
 function getRecipeSiteUrl(recipeSite) {
     let siteDict = {
         'BBC Good Food': 'site:https://www.bbcgoodfood.com/recipes/ -https://www.bbcgoodfood.com/recipes/collection',
@@ -57,6 +94,11 @@ function getRecipeSiteUrl(recipeSite) {
     return recipeSiteUrl;
 }
 
+/**
+ * Calls a scrape function depending on which site is required.
+ * @param {string} url the recipe url to scrape from
+ * @returns Recipe with ingredients that have nutrition info
+ */
 async function scrapeNutritionInfo(url) {
     let service = new URL(url);
     service = service.hostname.toLowerCase();
@@ -73,6 +115,13 @@ async function scrapeNutritionInfo(url) {
     }
 }
 
+/**
+ * Pulls html info from recipe web page.
+ * All info is stored in a JS object called props.
+ * Pull the info needed from that object.
+ * @param {string} url url of recipe
+ * @returns recipe with nutrition info
+ */
 async function scrapeBBC(url) {
 
     let response = await axios.get(url);
@@ -117,6 +166,13 @@ async function scrapeBBC(url) {
     }
 }
 
+/**
+ * Gets HTML from web page.
+ * Pulls recipe info including ingredients from HTML.
+ * Gets the nutritional info of all the ingredients.
+ * @param {string} url recipe url
+ * @returns recipe with nutrition info
+ */
 async function myRecipes(url) {
     let response = await axios.get(url);
     const root = parse(response.data.toString());
@@ -128,7 +184,7 @@ async function myRecipes(url) {
     const infoContent = (JSON.parse(infoNode.innerHTML));
 
     const recipeName = getRecipeName();
-    let yieldsAmount = getYieldsAmount(infoContent[1].recipeYield);
+    let yieldsAmount = getYieldsAmount(infoContent[1].recipeYield); // How many servings
     let instructions = getInstructions();
     let parsedIngredients = getIngredients();
 
@@ -150,6 +206,10 @@ async function myRecipes(url) {
         type: "manually calculated"
     });
 
+    /**
+     * Pulls the ingredients from the HTML
+     * @returns ingredients array
+     */
     function getIngredients() {
         const ingredientList = root.querySelectorAll('.ingredients-item');
         let parsedIngredients = [];
@@ -165,7 +225,7 @@ async function myRecipes(url) {
 
             parsedIngredients.push({
                 ingredientName,
-                ingredientAmount:ingredientAmountRounded,
+                ingredientAmount: ingredientAmountRounded,
                 ingredientUnit
             });
 
@@ -174,6 +234,11 @@ async function myRecipes(url) {
         return parsedIngredients;
     }
 
+    /**
+     * Gets the name of an ingredient and cleans it.
+     * @param {object} checkboxListInput HTML wrapper containing ingredient data
+     * @returns Parsed and cleaned ingredient name
+     */
     function getIngredientName(checkboxListInput) {
         let ingredientName = decode(checkboxListInput.getAttribute('data-ingredient'));
         // Deals with cases such as 'cheese, sliced' or 'bread, toasted'
@@ -186,16 +251,29 @@ async function myRecipes(url) {
         return ingredientName;
     }
 
+    /**
+     * Pulls the instructions from the HTML data.
+     * @returns a string containing all instructions
+     */
     function getInstructions() {
         let instructions = infoContent[1].recipeInstructions;
         instructions = instructions.map(instruction => { return instruction.text; });
         return instructions.join('\n');
     }
 
+    /**
+     * Pulls the recipe name from the HTML
+     * @returns the recipe name
+     */
     function getRecipeName() {
         return infoContent[1].name;
     }
 
+    /**
+     * Calculates the total carbs in the recipe.
+     * @param {array} ingredients array of ingredients
+     * @returns the total carbs of the ingredients
+     */
     function calculateTotalCarbs(ingredients) {
         return ingredients
             .filter(ingredient => { return ingredient.recipeIngredientCarbs != null })
@@ -203,6 +281,12 @@ async function myRecipes(url) {
             .reduce((prev, curr) => { return prev + curr });
     }
 
+    /**
+     * Calculates the carbs per serving
+     * @param {float} totalCarbs recipe total carbs
+     * @param {int} yieldsAmount how many servings
+     * @returns the carbs per serving
+     */
     function calculateCarbsPerServing(totalCarbs, yieldsAmount) {
         return totalCarbs / parseFloat(yieldsAmount);
     }
@@ -237,6 +321,11 @@ async function scrapeGoodHousekeeping(url) {
     return ({ list: "kljflaksjdf" });
 }
 
+/**
+ * Gets how many a recipe serves
+ * @param {string} string Serving size description (e.g. serves 10-12)
+ * @returns float with serving size
+ */
 function getYieldsAmount(string) {
     // Regex matches patterns: serves 10-12 or serves 10 to 12 or serves 12
     let unParsedYield = string.match(/\d+\s?(-|to)?\s?\d*/);
@@ -247,4 +336,4 @@ function getYieldsAmount(string) {
     }) / unParsedYield.length;
 }
 
-module.exports = { scrapeNutritionInfo, searchRecipes, saveRecipe, getRecipesByUserId, getRecipesWithFilter};
+module.exports = { scrapeNutritionInfo, searchRecipes, saveRecipe, getRecipesByUserId, getRecipesWithFilter };

@@ -1,8 +1,15 @@
+/**
+ * This file handles all recipes routing.
+ */
+
 const express = require('express');
 const { userAuthCheck } = require('../helpers/helpers.js');
 const { searchRecipes, saveRecipe, getRecipesByUserId, getRecipesWithFilter } = require('../services/service_recipes.js');
 const router = express.Router();
 
+/**
+ * Get /recipes view or get /recipes (JSON) 
+ */
 router.get('/recipes', [userAuthCheck], async function (req, res) {
     if (req.query.filters) {
         let response = await getRecipesWithFilter(req.user.userId, req.query.filters);
@@ -12,6 +19,9 @@ router.get('/recipes', [userAuthCheck], async function (req, res) {
     }
 });
 
+/**
+ * Gets recipes for a specific userId
+ */
 router.get('/recipes/userId', [userAuthCheck], async function (req, res, next) {
     try {
         const response = await getRecipesByUserId(req.user.userId);
@@ -22,6 +32,9 @@ router.get('/recipes/userId', [userAuthCheck], async function (req, res, next) {
     }
 });
 
+/**
+ * Gets recipe info for a specified recipe
+ */
 router.get('/recipe/:recipe', [userAuthCheck], async function (req, res, next) {
     try {
         let response = await scrapeNutritionInfo(req.params.recipe);
@@ -30,6 +43,9 @@ router.get('/recipe/:recipe', [userAuthCheck], async function (req, res, next) {
     }
 });
 
+/**
+ * Searches google for keywords on a specified site.
+ */
 router.get('/search-recipes', [userAuthCheck], async function (req, res, next) {
     try {
         const response = await searchRecipes(req.query.recipeSite, req.query.keywords);
@@ -43,6 +59,9 @@ router.get('/search-recipes', [userAuthCheck], async function (req, res, next) {
 
 // should really be just post /recipe
 // to stay restful
+/**
+ * Saves a recipe
+ */
 router.post('/save-recipe', [userAuthCheck], async function (req, res, next) {
     try {
         let response = await saveRecipe(req.body.recipeUrl, req.user.userId, req.body.recipeImageUrl);

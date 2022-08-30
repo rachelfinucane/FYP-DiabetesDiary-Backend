@@ -11,6 +11,13 @@ window.addEventListener('load', (event) => {
         });
 });
 
+/**
+ * Makes Get request to server
+ * @param {string} url url
+ * @returns response in JSON format
+ */
+// Some boilerplate taken from here:
+// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 // Some boilerplate taken from here:
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 async function fetchLogs(url) {
@@ -29,6 +36,11 @@ async function fetchLogs(url) {
     return response.json();
 }
 
+/**
+ * Displays a single log.
+ * @param {object} singleLog a single log to display
+ * @param {int} index the index of the log
+ */
 function displayData(singleLog, index) {
     let cardGroupContainer = document.getElementById('card-groups-container');
     cardGroupContainer.innerHTML += addOuterCard(singleLog.logTime, index);
@@ -39,6 +51,12 @@ function displayData(singleLog, index) {
     cardBody.innerHTML += addInsulin(singleLog.insulinList, index);
 }
 
+/**
+ * Constructs the outer card HTML
+ * @param {string} logTime Log time
+ * @param {int} index log index in array
+ * @returns HTML for outer card
+ */
 function addOuterCard(logTime, index) {
     let time = new Date(Date.parse(logTime));
     let timeString = time.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
@@ -54,6 +72,12 @@ function addOuterCard(logTime, index) {
 
 }
 
+/**
+ * Constructs blood sugar html if exists in the log
+ * @param {object} bloodSugar blood sugar info
+ * @param {int} index index of the log in the array
+ * @returns blood sugar HTML
+ */
 function addBloodSugar(bloodSugar, index) {
     if (objectNotEmpty(bloodSugar)) {
         return `<div class="input-group mb-3">
@@ -65,6 +89,12 @@ function addBloodSugar(bloodSugar, index) {
     return "";
 }
 
+/**
+ * Constructs meal html if exists in the log
+ * @param {object} meal meal info
+ * @param {int} index index of the log in the array
+ * @returns meal HTML
+ */
 function addMeal(meal, index) {
     if (objectNotEmpty(meal)) {
         return `<div class="mb-3">
@@ -79,6 +109,12 @@ function addMeal(meal, index) {
     return "";
 }
 
+/**
+ * Constructs insulin html if exists in the log
+ * @param {object} insulinList insulin info
+ * @param {int} index index of the log in the array
+ * @returns insulin HTML
+ */
 function addInsulin(insulinList, index) {
     if (objectNotEmpty(insulinList)) {
         return `<div class="input-group mb-3">

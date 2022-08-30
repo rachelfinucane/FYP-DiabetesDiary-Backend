@@ -1,7 +1,17 @@
+/**
+ * This file handles all business logic for Logs.
+ */
+
 const { handleInsertLog, handleSelectLogs } = require('../models/models_logs.js')
 
+/**
+ * Takes form input and formats it for the model_logs to use.
+ * Adds a recipe to the new object if one exists.
+ * @param {object} logInput contains info for new log from form
+ */
 function addLog(logInput) {
 
+    // Create our newLog object
     let newLog = {
         userId: logInput.userId,
         time: logInput.timeInput,
@@ -18,6 +28,7 @@ function addLog(logInput) {
         } //todo change to array to allow for multiple shots to be taken at once
     }
 
+    // Add recipe info if it exists
     if (logInput['recipeSelect'] != null) {
         let [recipeId, _] = logInput.recipeSelect.split(';');
         if (recipeId !== "default") {
