@@ -260,7 +260,7 @@ function displaySearchResults(searchResults) {
                                             <p class="card-text">${result.htmlSnippet}</p>
                                             <div class="d-grid gap-2 d-md-block">
                                                 <!-- <button class="btn btn-light" id="view-btn-${index}" type="button">View Recipe Information</button> --> <!-- Gets Recipe Info -->
-                                                <button class="btn btn-light" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
+                                                <button class="btn btn-dark" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
                                             </div>                                    
                                         </div>
                                     </div>
