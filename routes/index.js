@@ -1,8 +1,16 @@
-const express = require('express');
+/**
+ * This file handles all index routing.
+ */
 
+const express = require('express');
 const router = express.Router();
 
-/* GET home page. */
+/**
+ * Renders the home page.
+ * If the user is logged in, they are shown the main page.
+ * If they are not, they are shown the view of a logged
+ * out home page.
+ */
 router.get('/', function (req, res, next) {
     if (!req.user) { return res.render('home'); }
     next();

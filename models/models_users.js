@@ -1,9 +1,17 @@
+/**
+ * This file handles all db interaction regarding users
+ */
+
 const {sql, poolAsync } = require('./db');
 
-// const pool = await poolAsync;
-
+/**
+ * Gets the federated credentials (userId, federatedCredentialId, provider, subject)
+ * for a given unique issuer, profile pair
+ * @param {string} issuer e.g. google.com
+ * @param {string} profile a unique id from the issuer
+ * @returns the federated credentials (table where store google, facebook, microsoft info)
+ */
 async function getFederatedCredentials(issuer, profile) {
-    // let pool = await sql.connect(connectionString);
     const pool = await poolAsync;
     let result = await pool.request()
         .input('provider', sql.VarChar, issuer)
@@ -13,6 +21,11 @@ async function getFederatedCredentials(issuer, profile) {
     return (result.recordsets[0][0]);
 }
 
+/**
+ * Gets user info for a given user from the db
+ * @param {string} userId the userId
+ * @returns user information for the given user
+ */
 async function getUserById(userId) {
     // let pool = await sql.connect(connectionString);
     const pool = await poolAsync;
@@ -22,6 +35,11 @@ async function getUserById(userId) {
     return result.recordsets[0][0];
 }
 
+/**
+ * Checks if a user exists in the database.
+ * @param {string} userId the userId
+ * @returns true if user exists, false if user does not exist
+ */
 async function userExists(userId) {
     // let pool = await sql.connect(connectionString);
     const pool = await poolAsync;
@@ -31,6 +49,12 @@ async function userExists(userId) {
     return result.rowsAffected[0] > 0;
 }
 
+/**
+ * Adds a user to the db.
+ * @param {string} issuer e.g. google.com
+ * @param {string} profile unique id from issuer
+ * @returns userId of the inserted user
+ */
 async function insertUser(issuer, profile) {
     // let pool = await sql.connect(connectionString);
     const pool = await poolAsync;
@@ -43,6 +67,12 @@ async function insertUser(issuer, profile) {
     return (result.recordsets[0][0].userId);
 }
 
+/**
+ * Inserts the login credentials for e.g. google.com
+ * @param {string} issuer e.g. google.com
+ * @param {string} profile unique id from issuer
+ * @param {string} userId the userId
+ */
 async function insertFederatedCredentials(issuer, profile, userId) {
     // let pool = await sql.connect(connectionString);
     const pool = await poolAsync;

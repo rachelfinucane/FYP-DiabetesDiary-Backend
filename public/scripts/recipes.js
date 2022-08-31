@@ -1,9 +1,16 @@
+/**
+ * This file handles all front-end scripting for add-logs.ejs.
+ */
+
 let searchResults;
 
 window.addEventListener('load', () => {
     getSavedRecipesFromServer();
 });
 
+/**
+ * Pulls a user's recipes from server and displays them.
+ */
 function getSavedRecipesFromServer() {
     makeGetRequest(url = '/recipes/userId', params = '')
         .then((data) => {
@@ -12,6 +19,11 @@ function getSavedRecipesFromServer() {
         }).catch(err => { console.log(err); });
 }
 
+/**
+ * Makes Get request to server
+ * @param {string} url url
+ * @returns response in JSON format
+ */
 // Some boilerplate taken from here:
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 async function makeGetRequest(url) {
@@ -34,6 +46,11 @@ async function makeGetRequest(url) {
     });
 }
 
+/**
+ * POSTS to server
+ * @param {string} url 
+ * @param {object} body object to send 
+ */
 // Some boilerplate taken from here:
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 async function makePostRequest(url, body) {
@@ -57,6 +74,10 @@ async function makePostRequest(url, body) {
 
 }
 
+/**
+ * Shows the recipe search box.
+ * @param {event} event 
+ */
 function showSearchBox(event) {
     event.preventDefault();
     displayShowBackButton();
@@ -90,6 +111,9 @@ function showSearchBox(event) {
     recipeDisplayContainer.innerHTML = "";
 }
 
+/**
+ * Displays the saved recipes.
+ */
 function showSavedRecipes() {
     resetDisplayError();
 
@@ -167,6 +191,9 @@ function showSavedRecipes() {
     });
 }
 
+/**
+ * Shows button "Add a new Recipe"
+ */
 function displaySearchBoxButton() {
     let showSearchBoxButton = document.getElementById('a-new-recipe');
     let showRecipeListButton = document.getElementById('a-view-recipes');
@@ -174,6 +201,9 @@ function displaySearchBoxButton() {
     showRecipeListButton.setAttribute('hidden', true);
 }
 
+/**
+ * Shows button "Back to saved recipes"
+ */
 function displayShowBackButton() {
     let showSearchBoxButton = document.getElementById('a-new-recipe');
     let showRecipeListButton = document.getElementById('a-view-recipes');
@@ -181,6 +211,11 @@ function displayShowBackButton() {
     showRecipeListButton.removeAttribute('hidden', true);
 }
 
+/**
+ * Calls server to use google search api
+ * to search for recipes using user-entered keywords.
+ * @param {event} event 
+ */
 function searchRecipes(event) {
     event.preventDefault();
     resetDisplayError();
@@ -194,12 +229,19 @@ function searchRecipes(event) {
     let url = `/search-recipes?recipeSite=${recipeSite}&keywords=${keywords}`;
     makeGetRequest(url = url)
         .then((data) => {
+            if(data?.message == 'no items found') {
+                throw new Error(data.message);
+            }
             displaySearchResults(data);
         }).catch(err => {
             handleDisplayError(err.message);
         });
 }
 
+/**
+ * Displays results of recipe search
+ * @param {object} searchResults 
+ */
 function displaySearchResults(searchResults) {
     const searchResultsContainer = document.getElementById('search-results-container');
     searchResultsContainer.innerHTML = "";
@@ -218,7 +260,7 @@ function displaySearchResults(searchResults) {
                                             <p class="card-text">${result.htmlSnippet}</p>
                                             <div class="d-grid gap-2 d-md-block">
                                                 <!-- <button class="btn btn-light" id="view-btn-${index}" type="button">View Recipe Information</button> --> <!-- Gets Recipe Info -->
-                                                <button class="btn btn-light" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
+                                                <button class="btn btn-dark" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
                                             </div>                                    
                                         </div>
                                     </div>
@@ -228,6 +270,10 @@ function displaySearchResults(searchResults) {
     });
 }
 
+/**
+ * Saves a recipe.
+ * @param {event} event 
+ */
 function saveRecipe(event) {
     const cardElement = event.target.parentNode.parentNode;
     let recipeUrl = cardElement.querySelector('a').getAttribute('href');
@@ -245,6 +291,9 @@ function saveRecipe(event) {
         .catch(err => { console.log(err) });
 }
 
+/**
+ * Resets error display
+ */
 function resetDisplayError() {
     let alert = document.getElementById('alert');
     if (alert) {
@@ -252,6 +301,10 @@ function resetDisplayError() {
     }
 }
 
+/**
+ * Displays the error to user.
+ * @param {string} errorString error string to display
+ */
 function handleDisplayError(errorString) {
     resetDisplayError();
     let siblingElement = document.getElementById('a-new-recipe');
