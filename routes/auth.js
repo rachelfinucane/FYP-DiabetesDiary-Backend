@@ -1,3 +1,7 @@
+/**
+ * This file handles all auth routing.
+ */
+
 const express = require('express');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oidc');
@@ -5,14 +9,14 @@ const FacebookStrategy = require('passport-facebook');
 
 const { verifyUser, getUser } = require('../services/service_users')
 
-
-// Configure the Google strategy for use by Passport.
-//
-// OAuth 2.0-based strategies require a `verify` function which receives the
-// credential (`accessToken`) for accessing the Facebook API on the user's
-// behalf, along with the user's profile.  The function must invoke `cb`
-// with a user object, which will be set at `req.user` in route handlers after
-// authentication.
+/**
+ * Set up passport to use Google validation.
+ * If validation is successful, the callback function is called.
+ * This inserts a new user if one does not exist.
+ * cb(null, user) adds the user to req.user
+ * 
+ * Passport docs
+ */
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -30,6 +34,20 @@ passport.use(new GoogleStrategy({
 
 }));
 
+
+/**
+ * Not used in the end: Facebook itself threw errors 
+ * when trying to set up an app in their developer console.
+ * I suspect I have to verify myself and I don't want to give them
+ * a copy of my passport.
+ * 
+ * Set up passport to use Facebook validation.
+ * If validation is successful, the callback function is called.
+ * This inserts a new user if one does not exist.
+ * cb(null, user) adds the user to req.user
+ * 
+ * Passport docs
+ */
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -48,21 +66,20 @@ passport.use(new FacebookStrategy({
 
 }));
 
-// Configure Passport authenticated session persistence.
-//
-// In order to restore authentication state across HTTP requests, Passport needs
-// to serialize users into and deserialize users out of the session.  In a
-// production-quality application, this would typically be as simple as
-// supplying the user ID when serializing, and querying the user record by ID
-// from the database when deserializing.  However, due to the fact that this
-// example does not have a database, the complete Facebook profile is serialized
-// and deserialized.
+/**
+ * Passport needs to pull the user in and out of the session.
+ * Here, add the user to the session.
+ */
 passport.serializeUser(function (user, cb) {
     process.nextTick(function () {
         cb(null, { id: user.userId });
     });
 });
 
+/**
+ * Pull the userId out of the session and find the details
+ * in the database.
+ */
 passport.deserializeUser(async function (user, cb) {
     process.nextTick(async function () {
         let fullUserDetails = await getUser(user.id);
@@ -77,6 +94,9 @@ passport.deserializeUser(async function (user, cb) {
 
 const router = express.Router();
 
+/**
+ * Middleware that checks if the user is logged in.
+ */
 const userAuthCheck = function (req, res, next) {
     if (!req.user) {
         console.log("Auth check failed. Redirecting to login.");
@@ -85,53 +105,51 @@ const userAuthCheck = function (req, res, next) {
     next();
 }
 
-/* GET /login
- *
- * This route prompts the user to log in.
- *
- * The 'login' view renders an HTML page, which contain a button prompting the
- * user to sign in with Google.  When the user clicks this button, a request
- * will be sent to the `GET /login/federated/accounts.google.com` route.
+/**
+ * GET /login
+ * Route renders the login page.
  */
 router.get('/login', function (req, res, next) {
     res.render('login');
 });
 
-/* GET /login/federated/accounts.google.com
- *
- * This route redirects the user to Google, where they will authenticate.
- *
- * Signing in with Google is implemented using OAuth 2.0.  This route initiates
- * an OAuth 2.0 flow by redirecting the user to Google's identity server at
- * 'https://accounts.google.com'.  Once there, Google will authenticate the user
- * and obtain their consent to release identity information to this app.
- *
- * Once Google has completed their interaction with the user, the user will be
- * redirected back to the app at `GET /oauth2/redirect/accounts.google.com`.
+
+/**
+ * GET /login/federated/google
+ * When user clicks on 'continue with google', the middleware called is the 
+ * passport google authentication. If that is successful, the callback function
+ * associated with that strategy is called. 
  */
 router.get('/login/federated/google', passport.authenticate('google'));
 
-/*
-    This route completes the authentication sequence when Google redirects the
-    user back to the application.  When a new user signs in, a user account is
-    automatically created and their Google account is linked.  When an existing
-    user returns, they are signed in to their linked account.
-*/
+/**
+ * On authentication with Google, the user is redirected to Home.
+ * If unsuccessful, they are redirected to login.
+ */
 router.get('/oauth2/redirect/google', passport.authenticate('google', {
     successReturnToOrRedirect: '/',
     failureRedirect: '/login'
 }));
 
+/**
+ * GET /login/federated/facebook
+ * When user clicks on 'continue with facebook', the middleware called is the 
+ * passport facebook authentication. If that is successful, the callback function
+ * associated with that strategy is called. 
+ */
 router.get('/login/federated/facebook', passport.authenticate('facebook'));
 
+/**
+ * On authentication with Facebook, the user is redirected to Home.
+ * If unsuccessful, they are redirected to login.
+ */
 router.get('/oauth2/redirect/facebook', passport.authenticate('facebook', {
     successReturnToOrRedirect: '/',
     failureRedirect: '/login'
 }));
 
-/* POST /logout
- *
- * This route logs the user out.
+/**
+ * User logs out here. They are redirected to home
  */
 router.post('/logout', function (req, res, next) {
     req.logout(function (err) {

@@ -1,8 +1,15 @@
+/**
+ * This file handles all logs routing.
+ */
+
 const express = require('express');
 const { addLog, getLogs } = require('../services/service_logs.js');
 const { userAuthCheck } = require('../helpers/helpers.js');
 const router = express.Router();
 
+/**
+ * GET add-logs page
+ */
 router.get('/add-logs', [userAuthCheck], function (req, res, next) {
     res.render('add-logs', { user: req.user });
 });
