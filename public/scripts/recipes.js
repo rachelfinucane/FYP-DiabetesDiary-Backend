@@ -38,12 +38,22 @@ async function makeGetRequest(url) {
         },
         method: 'GET',
         mode: 'same-origin'
-    }).then(response => {
-        if (response.status != 200) {
-            throw new Error(`There was an error connecting to the server (Response: ${response.status})`);
-        }
-        return response.json();
-    });
+    })
+        .catch(err => {
+            handleDisplayError("There was an error connecting to the server.");
+        })
+        .then(async response => {
+            if (response.status > 200 && response.status < 500) {
+                let message = await response.json();
+                handleDisplayError(message.message);
+                throw new Error(response.status, message.message);
+            } else if (response.status >= 500) {
+                let message = await response.json();
+                handleDisplayError(`There was an error connecting to the server (Response: ${response.status}, ${message?.message})`);
+                throw new Error(response.status, message?.message);
+            }
+            return response.json();
+        });
 }
 
 /**
@@ -66,11 +76,21 @@ async function makePostRequest(url, body) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(body)
-    }).then(response => {
-        if (response.status != 200) {
-            throw new Error(`There was an error connecting to the server (Response: ${response.status})`);
-        }
-    });
+    })
+        .catch(err => {
+            handleDisplayError("There was an error connecting to the server.");
+        })
+        .then(async response => {
+            if (response.status > 200 && response.status < 500) {
+                let message = await response.json();
+                handleDisplayError(message.message);
+                throw new Error(response.status, message.message);
+            } else if (response.status >= 500) {
+                let message = await response.json();
+                handleDisplayError(`There was an error connecting to the server (Response: ${response.status}, ${message?.message})`);
+                throw new Error(response.status, message?.message);
+            }
+        });
 
 }
 
@@ -229,12 +249,10 @@ function searchRecipes(event) {
     let url = `/search-recipes?recipeSite=${recipeSite}&keywords=${keywords}`;
     makeGetRequest(url = url)
         .then((data) => {
-            if(data?.message == 'no items found') {
-                throw new Error(data.message);
-            }
             displaySearchResults(data);
-        }).catch(err => {
-            handleDisplayError(err.message);
+        })
+        .catch(err => {
+            console.log(err);
         });
 }
 
@@ -260,7 +278,7 @@ function displaySearchResults(searchResults) {
                                             <p class="card-text">${result.htmlSnippet}</p>
                                             <div class="d-grid gap-2 d-md-block">
                                                 <!-- <button class="btn btn-light" id="view-btn-${index}" type="button">View Recipe Information</button> --> <!-- Gets Recipe Info -->
-                                                <button class="btn btn-dark" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
+                                                <button class="save-btn btn btn-dark" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
                                             </div>                                    
                                         </div>
                                     </div>
@@ -275,20 +293,39 @@ function displaySearchResults(searchResults) {
  * @param {event} event 
  */
 function saveRecipe(event) {
+
+    resetDisplayError();
+
+    // Disable all other buttons to prevent multiple submissions
+    disableSaveButtons();
+
     const cardElement = event.target.parentNode.parentNode;
     let recipeUrl = cardElement.querySelector('a').getAttribute('href');
     const cardParentElement = cardElement.parentNode.parentNode;
-    console.log(cardParentElement);
     let recipeImageUrl = cardParentElement.querySelector('img').getAttribute('src');
     const url = '/save-recipe';
 
     // Some boilerplate taken from here:
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-    makePostRequest(url, { recipeUrl: recipeUrl, recipeImageUrl:recipeImageUrl })
+    makePostRequest(url, { recipeUrl: recipeUrl, recipeImageUrl: recipeImageUrl })
         .then(() => {
             getSavedRecipesFromServer();
         })
-        .catch(err => { console.log(err) });
+        .catch(err => {
+            console.log(err);
+        });
+}
+
+/**
+ * Disables all save buttons after clicking to prevent multiple submissions.
+ */
+function disableSaveButtons() {
+    let saveButtons = Array.from(document.getElementsByClassName('save-btn'));
+    console.log("saved", saveButtons);
+    saveButtons.forEach(button => {
+        button.classList.add("disabled");s
+        console.log(button);
+    });
 }
 
 /**
