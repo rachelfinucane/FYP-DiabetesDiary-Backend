@@ -10,6 +10,7 @@ const { roundDecimalPlaces } = require('../helpers/helpers.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
 const { handleGetRecipesByUserId, handleInsertRecipe, handleGetRecipesWithFilter } = require('../models/models_recipes.js');
 const { NotFoundError } = require('../errors/NotFound');
+const { BadRequestError } = require('../errors/BadRequest');
 
 /**
  * Gets recipes for a given user. Returns only fields from filters.
@@ -115,7 +116,8 @@ async function scrapeNutritionInfo(url) {
     } else if (service.includes('myrecipes')) {
         return myRecipes(url);
     } else {
-        throw new Error("Could not process request to scrape nutritional info: url was not to a supported recipe site");
+        throw new BadRequestError(`Could not process request to scrape nutritional info: 
+        url was not to a supported recipe site`);
     }
 }
 
@@ -245,6 +247,12 @@ async function myRecipes(url) {
      */
     function getIngredientName(checkboxListInput) {
         let ingredientName = decode(checkboxListInput.getAttribute('data-ingredient'));
+
+        // Deals with the case of the ingredient being wrapped in a link
+        if(ingredientName.includes("<a href=")) {
+            ingredientName = parse(ingredientName).innerText;
+        }
+
         // Deals with cases such as 'cheese, sliced' or 'bread, toasted'
         if (ingredientName.includes(',')) {
             ingredientName = ingredientName.split(',').slice(0, -1).join();
