@@ -38,12 +38,22 @@ async function makeGetRequest(url) {
         },
         method: 'GET',
         mode: 'same-origin'
-    }).then(response => {
-        if (response.status != 200) {
-            throw new Error(`There was an error connecting to the server (Response: ${response.status})`);
-        }
-        return response.json();
-    });
+    })
+        .catch(err => {
+            handleDisplayError("There was an error connecting to the server.");
+        })
+        .then(async response => {
+            if (response.status > 200 && response.status < 500) {
+                let message = await response.json();
+                handleDisplayError(message.message);
+                throw new Error(response.status, message.message);
+            } else if (response.status >= 500) {
+                let message = await response.json();
+                handleDisplayError(`There was an error connecting to the server (Response: ${response.status}, ${message?.message})`);
+                throw new Error(response.status, message?.message);
+            }
+            return response.json();
+        });
 }
 
 /**
@@ -66,11 +76,21 @@ async function makePostRequest(url, body) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(body)
-    }).then(response => {
-        if (response.status != 200) {
-            throw new Error(`There was an error connecting to the server (Response: ${response.status})`);
-        }
-    });
+    })
+        .catch(err => {
+            handleDisplayError("There was an error connecting to the server.");
+        })
+        .then(async response => {
+            if (response.status > 200 && response.status < 500) {
+                let message = await response.json();
+                handleDisplayError(message.message);
+                throw new Error(response.status, message.message);
+            } else if (response.status >= 500) {
+                let message = await response.json();
+                handleDisplayError(`There was an error connecting to the server (Response: ${response.status}, ${message?.message})`);
+                throw new Error(response.status, message?.message);
+            }
+        });
 
 }
 
@@ -229,12 +249,10 @@ function searchRecipes(event) {
     let url = `/search-recipes?recipeSite=${recipeSite}&keywords=${keywords}`;
     makeGetRequest(url = url)
         .then((data) => {
-            if(data?.message == 'no items found') {
-                throw new Error(data.message);
-            }
             displaySearchResults(data);
-        }).catch(err => {
-            handleDisplayError(err.message);
+        })
+        .catch(err => {
+            console.log(err);
         });
 }
 
@@ -276,6 +294,8 @@ function displaySearchResults(searchResults) {
  */
 function saveRecipe(event) {
 
+    resetDisplayError();
+
     // Disable all other buttons to prevent multiple submissions
     disableSaveButtons();
 
@@ -291,7 +311,9 @@ function saveRecipe(event) {
         .then(() => {
             getSavedRecipesFromServer();
         })
-        .catch(err => { console.log(err) });
+        .catch(err => {
+            console.log(err);
+        });
 }
 
 /**
@@ -301,7 +323,7 @@ function disableSaveButtons() {
     let saveButtons = Array.from(document.getElementsByClassName('save-btn'));
     console.log("saved", saveButtons);
     saveButtons.forEach(button => {
-        button.classList.add("disabled");
+        button.classList.add("disabled");s
         console.log(button);
     });
 }

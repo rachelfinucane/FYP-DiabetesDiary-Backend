@@ -9,6 +9,7 @@ const { removeTabsAndReturns, convertFractionToFloat } = require('../helpers/rec
 const { roundDecimalPlaces } = require('../helpers/helpers.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
 const { handleGetRecipesByUserId, handleInsertRecipe, handleGetRecipesWithFilter } = require('../models/models_recipes.js');
+const { NotFoundError } = require('../errors/NotFound');
 
 /**
  * Gets recipes for a given user. Returns only fields from filters.
@@ -45,10 +46,13 @@ async function searchRecipes(recipeSite, keywords) {
         if (result.items) {
             return result.items;
         } else {
-            return {message:"no items found"};
+            throw new NotFoundError("No search results found");
         }
     } catch (err) {
         console.log(err);
+        if(err.name === 'NotFoundError') {
+            throw err;
+        }
         throw new Error("Could not connect to the Google Search API");
     }
 }

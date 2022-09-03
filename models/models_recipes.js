@@ -3,6 +3,7 @@
  */
 
 const { sql, poolAsync } = require('./db');
+const { BadRequestError } = require('../Errors/BadRequest');
 
 /**
  * Returns an array of recipes that match the requested filters.
@@ -82,6 +83,8 @@ async function handleInsertRecipe(newRecipe, userId, recipeImageUrl) {
  * @returns insertedRecipeId
  */
 async function insertRecipe(recipe, userId, pool, recipeImageUrl) {
+
+    await checkRecipeExists(pool, recipe, userId, recipeImageUrl);
 
     const queryString = "INSERT INTO Recipe (userId, carbsPerServing, totalCarbs, recipeType, " +
         "recipeInstructions, recipeYields, recipeName, recipeImageUrl) OUTPUT inserted.recipeId " +
@@ -211,6 +214,43 @@ function constructIngredientListInserts(ingredientIds, recipeId) {
     });
     values = values.join(',');
     return values;
+}
+
+async function checkRecipeExists(pool, recipe, userId, recipeImageUrl) {
+    console.log(userId, recipe);
+    const queryString = "SELECT * FROM Recipe WHERE userId = @userId " +
+        "AND recipeName = @recipeName AND recipeImageUrl = @recipeImageUrl " +
+        "AND recipeType = @recipeType";
+
+    try {
+        const result = await pool.request()
+            .input("userId", sql.UniqueIdentifier, userId)
+            .input("recipeType", sql.VarChar(100), recipe.type)
+            .input("recipeName", sql.VarChar(500), recipe.recipeName)
+            .input("recipeImageUrl", sql.VarChar(1000), recipeImageUrl)
+            .query(queryString);
+
+        console.log(result);
+        if (result.rowsAffected[0] > 0) {
+            // class BadRequestError extends Error {
+            //     constructor(message) {
+            //         super();
+            //         this.name = this.constructor.name
+
+            //         this.message = message;
+            //         this.statusCode = 400
+            //     }
+            // }
+            throw new BadRequestError("Recipe already saved");
+        }
+    } catch (err) {
+        if (err.name === 'BadRequestError') {
+            throw err;
+        }
+        console.log(err);
+        throw new Error("Error inserting into recipe: ", queryString, err.message);
+    }
+
 }
 
 // This would be the best way to insert multiple records at once
