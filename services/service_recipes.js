@@ -131,14 +131,15 @@ async function scrapeBBC(url) {
     const infoContent = (JSON.parse(infoNode.innerHTML)).props.pageProps;
     const carbsPerServing = getCarbs(infoContent.nutritionalInfo);
     const yieldsAmount = getYieldsAmount(infoContent.servings);
-    const ingredients = infoContent.ingredients; // store ingredients and their amounts together
+    const ingredients = getIngredients(); // store ingredients and their amounts together
     const instructions = getInstructions();
+    
     return {
         recipeName: infoContent.title,
         yields: yieldsAmount,
         instructions: instructions.join('\n'),
         // description: infoContent.description,
-        ingredients: getIngredients(),
+        ingredients: ingredients,
         carbsPerServing: carbsPerServing,
         type: "included with recipe"
     }
@@ -155,7 +156,7 @@ async function scrapeBBC(url) {
         return infoContent.ingredients.map(section => {
             return section.ingredients.map(ingredient => {
                 return {
-                    ingredientName: ingredient.quantityText?.concat(" ", ingredient?.ingredientText),
+                    ingredientName: (ingredient.quantityText ?? "").concat(" ", ingredient.ingredientText ?? ""),
                     "ingredientAmount": null,
                     "ingredientUnit": null,
                     "apiFoodName": null,
