@@ -260,7 +260,7 @@ function displaySearchResults(searchResults) {
                                             <p class="card-text">${result.htmlSnippet}</p>
                                             <div class="d-grid gap-2 d-md-block">
                                                 <!-- <button class="btn btn-light" id="view-btn-${index}" type="button">View Recipe Information</button> --> <!-- Gets Recipe Info -->
-                                                <button class="btn btn-dark" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
+                                                <button class="save-btn btn btn-dark" id="save-btn-${index}" type="button" onclick="saveRecipe(event);">Save Recipe</button> <!-- Gets Recipe Info and Saves, redirects to /recipes -->
                                             </div>                                    
                                         </div>
                                     </div>
@@ -275,20 +275,35 @@ function displaySearchResults(searchResults) {
  * @param {event} event 
  */
 function saveRecipe(event) {
+
+    // Disable all other buttons to prevent multiple submissions
+    disableSaveButtons();
+
     const cardElement = event.target.parentNode.parentNode;
     let recipeUrl = cardElement.querySelector('a').getAttribute('href');
     const cardParentElement = cardElement.parentNode.parentNode;
-    console.log(cardParentElement);
     let recipeImageUrl = cardParentElement.querySelector('img').getAttribute('src');
     const url = '/save-recipe';
 
     // Some boilerplate taken from here:
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-    makePostRequest(url, { recipeUrl: recipeUrl, recipeImageUrl:recipeImageUrl })
+    makePostRequest(url, { recipeUrl: recipeUrl, recipeImageUrl: recipeImageUrl })
         .then(() => {
             getSavedRecipesFromServer();
         })
         .catch(err => { console.log(err) });
+}
+
+/**
+ * Disables all save buttons after clicking to prevent multiple submissions.
+ */
+function disableSaveButtons() {
+    let saveButtons = Array.from(document.getElementsByClassName('save-btn'));
+    console.log("saved", saveButtons);
+    saveButtons.forEach(button => {
+        button.classList.add("disabled");
+        console.log(button);
+    });
 }
 
 /**
