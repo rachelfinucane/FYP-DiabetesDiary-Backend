@@ -50,7 +50,7 @@ async function searchRecipes(recipeSite, keywords) {
         }
     } catch (err) {
         console.log(err);
-        if(err.name === 'NotFoundError') {
+        if (err.name === 'NotFoundError') {
             throw err;
         }
         throw new Error("Could not connect to the Google Search API");
@@ -137,12 +137,11 @@ async function scrapeBBC(url) {
     const yieldsAmount = getYieldsAmount(infoContent.servings);
     const ingredients = getIngredients(); // store ingredients and their amounts together
     const instructions = getInstructions();
-    
+
     return {
         recipeName: infoContent.title,
         yields: yieldsAmount,
         instructions: instructions.join('\n'),
-        // description: infoContent.description,
         ingredients: ingredients,
         carbsPerServing: carbsPerServing,
         type: "included with recipe"
@@ -283,7 +282,7 @@ async function myRecipes(url) {
         return ingredients
             .filter(ingredient => { return ingredient.recipeIngredientCarbs != null })
             .map(ingredient => { return parseFloat(ingredient.recipeIngredientCarbs) })
-            .reduce((prev, curr) => { return prev + curr });
+            .reduce((prev, curr) => prev + curr, 0);
     }
 
     /**
