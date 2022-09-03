@@ -17,23 +17,13 @@ async function getNutritionalInfo(recipe) {
 
     return await Promise.all(
         ingredients.map(async (ingredient) => {
-            const apiKey = process.env.USDA_API_KEY;
-            const pageSize = 20;
-            const dataType = 'Branded';
-            const query = ingredient.ingredientName;
-            const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&pageSize=${pageSize}&query=${query}&dataType=${dataType}`;
-
-            // Make request to Nutrition API
-            let response = await axios.get(url);
-
-            // An array of matching API foods
-            let apiFoodResult = response.data.foods;
+            let apiFoodList = await getMatchingApiFoods(ingredient);
 
             // If the ingredient we are looking at is measured in weight
             // Then we can only look at API ingredients that are also measured in weight
             if (ingredient.ingredientUnit.trim().toLowerCase() in weightDict) {
                 // Now pull a matching food from the API results
-                let matchingAPIFood = getAPIFoodByServingSize(apiFoodResult, 'g');
+                let matchingAPIFood = getAPIFoodByServingSize(apiFoodList, 'g');
                 if (matchingAPIFood) {
                     return extractNutritionFromAPIFood(matchingAPIFood, ingredient, 'g', weightDict);
                 }
@@ -44,7 +34,7 @@ async function getNutritionalInfo(recipe) {
 
                 // First check servingSizeUnit to see if ml is available
                 // This is how the API officially records their serving sizes
-                let matchingAPIFood = getAPIFoodByServingSize(apiFoodResult, 'ml');
+                let matchingAPIFood = getAPIFoodByServingSize(apiFoodList, 'ml');
                 if (matchingAPIFood) {
                     return extractNutritionFromAPIFood(matchingAPIFood, ingredient,
                         'ml', volumeDict);
@@ -53,7 +43,7 @@ async function getNutritionalInfo(recipe) {
                     // This is the manufacturer description of serving size
                     // And is more likely to use cups, which is a volume and can be converted
                     // Could expand this to look for quarts etc, but cups seem most common
-                    matchingAPIFood = getAPIFoodByServingDescription(apiFoodResult,
+                    matchingAPIFood = getAPIFoodByServingDescription(apiFoodList,
                         'cup', volumeDict);
                     if (matchingAPIFood) {
                         return extractNutritionFromAPIFood(matchingAPIFood, ingredient,
@@ -73,17 +63,32 @@ async function getNutritionalInfo(recipe) {
     );
 }
 
+async function getMatchingApiFoods(ingredient) {
+    const apiKey = process.env.USDA_API_KEY;
+    const pageSize = 20;
+    const dataType = 'Branded';
+    const query = ingredient.ingredientName;
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&pageSize=${pageSize}&query=${query}&dataType=${dataType}`;
+
+    // Make request to Nutrition API
+    let response = await axios.get(url);
+
+    // An array of matching API foods
+    let apiFoodList = response.data.foods;
+    return apiFoodList;
+}
+
 /**
  * Looks through an array of results from the Nutrition API.
  * Takes the first result that uses the units we want to specify serving size.
- * @param {object} apiFoodResult an array of foods returned from the Nutrition API
+ * @param {object} apiFoodList an array of foods returned from the Nutrition API
  * @param {string} unit desired unit to search for
  * @returns the first food in the array that matches the unit we are searching for
  */
-function getAPIFoodByServingSize(apiFoodResult, unit) {
+function getAPIFoodByServingSize(apiFoodList, unit) {
     // Find the first matching ingredient from the API
     // That has the info in the unit specified (e.g. g, ml)
-    return matchingAPIFood = apiFoodResult.find(food => {
+    return matchingAPIFood = apiFoodList.find(food => {
         // Want the first food in specified unit (g, ml) only
         if (food.servingSizeUnit.trim().toLowerCase() !== unit ||
             food === null || food === undefined) {
@@ -149,19 +154,19 @@ function extractNutritionFromAPIFood(food, ingredient, unit, unitDict) {
  * Given an array of foods from the Nutrition Api, 
  * this function scans through and grabs one that has "cups" in the
  * serving size description. 
- * @param {object} apiFoodResult an array of foods returned by the Food API
+ * @param {object} apiFoodList an array of foods returned by the Food API
  * @param {string} unit the unit we're looking for in the serving description (usually cups)
  * @param {object} unitDict either weightDict or volumeDict, used to standardize ml, mils, millilitres etc.
  * @returns an API food that has a serving size that matches our specified unit
  */
-function getAPIFoodByServingDescription(apiFoodResult, unit, unitDict) {
+function getAPIFoodByServingDescription(apiFoodList, unit, unitDict) {
 
     // Construct regex that searches the serving description for 
     // any mention of our specified unit
     // usually cups
-    let unitRegex = getRegexSearchForUnit(unitDict, unit);
+    let unitRegex = constructRegexSearchForUnit(unitDict, unit);
 
-    let food = findMatchingFoodByServingDescription(apiFoodResult, unitRegex);
+    let food = findMatchByServingDescription(apiFoodList, unitRegex);
 
     if (food) {
         let matchedServingDescription = food.householdServingFullText.match(unitRegex);
@@ -183,7 +188,7 @@ function getAPIFoodByServingDescription(apiFoodResult, unit, unitDict) {
  * @param {string} unit the unit we are searching for (usually cups)
  * @returns RegExp
  */
- function getRegexSearchForUnit(unitDict, unit) {
+ function constructRegexSearchForUnit(unitDict, unit) {
     let unitVariants = Object.keys(unitDict).filter(key => unitDict[key] === unit).join('|');
     // Matches pattern 1 oz, 25g, 1/4 kg, 0.25 lbs
     // The number pattern came from here:
@@ -196,12 +201,12 @@ function getAPIFoodByServingDescription(apiFoodResult, unit, unitDict) {
  * Given an array of Nutrition API foods, scans through all of them
  * and finds one that matches the RegExp
  * and also contains carb info that is measured in grams
- * @param {object} apiFoodResult array of foods from the nutrition API
+ * @param {object} apiFoodList array of foods from the nutrition API
  * @param {RegExp} unitRegex a regular expression
  * @returns a matching food or null
  */
-function findMatchingFoodByServingDescription(apiFoodResult, unitRegex) {
-    return apiFoodResult.find(food => {
+function findMatchByServingDescription(apiFoodList, unitRegex) {
+    return apiFoodList.find(food => {
 
         let manufactureServingDescription = food.householdServingFullText?.trim();
         
