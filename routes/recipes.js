@@ -64,7 +64,7 @@ router.get('/search-recipes', [userAuthCheck], async function (req, res, next) {
  */
 router.post('/save-recipe', [userAuthCheck], async function (req, res, next) {
     try {
-        let response = await saveRecipe(req.body.recipeUrl, req.user.userId, req.body.recipeImageUrl);
+        await saveRecipe(req.body.recipeUrl, req.user.userId, req.body.recipeImageUrl);
 
         res.redirect('/recipes');
     } catch (err) {
@@ -72,7 +72,5 @@ router.post('/save-recipe', [userAuthCheck], async function (req, res, next) {
         next(err)
     }
 });
-
-router.get('')
 
 module.exports = router;

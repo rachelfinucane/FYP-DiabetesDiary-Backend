@@ -9,6 +9,8 @@ const { removeTabsAndReturns, convertFractionToFloat } = require('../helpers/rec
 const { roundDecimalPlaces } = require('../helpers/helpers.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
 const { handleGetRecipesByUserId, handleInsertRecipe, handleGetRecipesWithFilter } = require('../models/models_recipes.js');
+const { NotFoundError } = require('../errors/NotFound');
+const { BadRequestError } = require('../errors/BadRequest');
 
 /**
  * Gets recipes for a given user. Returns only fields from filters.
@@ -45,10 +47,13 @@ async function searchRecipes(recipeSite, keywords) {
         if (result.items) {
             return result.items;
         } else {
-            return {message:"no items found"};
+            throw new NotFoundError("No search results found");
         }
     } catch (err) {
         console.log(err);
+        if (err.name === 'NotFoundError') {
+            throw err;
+        }
         throw new Error("Could not connect to the Google Search API");
     }
 }
@@ -111,7 +116,8 @@ async function scrapeNutritionInfo(url) {
     } else if (service.includes('myrecipes')) {
         return myRecipes(url);
     } else {
-        throw new Error("Could not process request to scrape nutritional info: url was not to a supported recipe site");
+        throw new BadRequestError(`Could not process request to scrape nutritional info: 
+        url was not to a supported recipe site`);
     }
 }
 
@@ -131,14 +137,14 @@ async function scrapeBBC(url) {
     const infoContent = (JSON.parse(infoNode.innerHTML)).props.pageProps;
     const carbsPerServing = getCarbs(infoContent.nutritionalInfo);
     const yieldsAmount = getYieldsAmount(infoContent.servings);
-    const ingredients = infoContent.ingredients; // store ingredients and their amounts together
+    const ingredients = getIngredients(); // store ingredients and their amounts together
     const instructions = getInstructions();
+
     return {
         recipeName: infoContent.title,
         yields: yieldsAmount,
         instructions: instructions.join('\n'),
-        // description: infoContent.description,
-        ingredients: getIngredients(),
+        ingredients: ingredients,
         carbsPerServing: carbsPerServing,
         type: "included with recipe"
     }
@@ -155,7 +161,7 @@ async function scrapeBBC(url) {
         return infoContent.ingredients.map(section => {
             return section.ingredients.map(ingredient => {
                 return {
-                    ingredientName: ingredient.quantityText?.concat(" ", ingredient?.ingredientText),
+                    ingredientName: (ingredient.quantityText ?? "").concat(" ", ingredient.ingredientText ?? ""),
                     "ingredientAmount": null,
                     "ingredientUnit": null,
                     "apiFoodName": null,
@@ -241,6 +247,12 @@ async function myRecipes(url) {
      */
     function getIngredientName(checkboxListInput) {
         let ingredientName = decode(checkboxListInput.getAttribute('data-ingredient'));
+
+        // Deals with the case of the ingredient being wrapped in a link
+        if(ingredientName.includes("<a href=")) {
+            ingredientName = parse(ingredientName).innerText;
+        }
+
         // Deals with cases such as 'cheese, sliced' or 'bread, toasted'
         if (ingredientName.includes(',')) {
             ingredientName = ingredientName.split(',').slice(0, -1).join();
@@ -278,7 +290,7 @@ async function myRecipes(url) {
         return ingredients
             .filter(ingredient => { return ingredient.recipeIngredientCarbs != null })
             .map(ingredient => { return parseFloat(ingredient.recipeIngredientCarbs) })
-            .reduce((prev, curr) => { return prev + curr });
+            .reduce((prev, curr) => prev + curr, 0);
     }
 
     /**

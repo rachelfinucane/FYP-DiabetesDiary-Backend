@@ -20,6 +20,7 @@ const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const logsRouter = require('./routes/logs');
 const recipesRouter = require('./routes/recipes');
+const errorResponder = require('./routes/error');
 
 const app = express();
 
@@ -57,5 +58,7 @@ app.use('/', indexRouter);
 app.use('/', authRouter);
 app.use('/', logsRouter);
 app.use('/', recipesRouter);
+app.use(errorResponder);
+
 
 module.exports = app;
