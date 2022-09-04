@@ -323,7 +323,7 @@ function disableSaveButtons() {
     let saveButtons = Array.from(document.getElementsByClassName('save-btn'));
     console.log("saved", saveButtons);
     saveButtons.forEach(button => {
-        button.classList.add("disabled");s
+        button.classList.add("disabled");
         console.log(button);
     });
 }
