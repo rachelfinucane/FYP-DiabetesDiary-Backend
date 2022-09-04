@@ -4,7 +4,7 @@
 
 const express = require('express');
 const { userAuthCheck } = require('../helpers/helpers.js');
-const { searchRecipes, saveRecipe, getRecipesByUserId, getRecipesWithFilter } = require('../services/service_recipes.js');
+const { searchRecipes, saveRecipe, getRecipesByUserId, getRecipesWithFilter, deleteRecipe } = require('../services/service_recipes.js');
 const router = express.Router();
 
 /**
@@ -72,5 +72,20 @@ router.post('/save-recipe', [userAuthCheck], async function (req, res, next) {
         next(err)
     }
 });
+
+/**
+ * Deletes a recipe
+ */
+ router.delete('/recipes/:recipeId', [userAuthCheck], async function (req, res, next) {
+    console.log("delete");
+    try {
+        await deleteRecipe(req.params.recipeId, req.user.userId);
+        res.sendStatus(200);
+    } catch (err) {
+        console.log(err);
+        next(err)
+    }
+});
+
 
 module.exports = router;
