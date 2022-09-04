@@ -331,7 +331,13 @@ async function allRecipes(url) {
     const infoNode = root.querySelector('[type="application/ld+json"]');
     const infoContent = (JSON.parse(infoNode.innerHTML))[1];
     const carbsPerServing = getCarbs(infoContent.nutrition);
-    const yieldsAmount = getYieldsAmount(infoContent.recipeYield);
+    let yieldsAmount;
+    if(infoContent.recipeYield){
+        yieldsAmount = getYieldsAmount(infoContent.recipeYield);
+    } else {
+        const unParsedYield = root.querySelector('.recipe-adjust-servings__size-quantity').innerText;
+        yieldsAmount = getYieldsAmount(unParsedYield);
+    }
     const ingredients = getIngredients(); // store ingredients and their amounts together
     const instructions = getInstructions();
 
