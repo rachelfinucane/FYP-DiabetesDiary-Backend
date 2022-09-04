@@ -171,7 +171,7 @@ function showSavedRecipes() {
                                                 <!-- <div class="col-md-4">
                                                     <img src="${recipe.recipeImageUrl}" class="rounded-start h-100 w-100 googleThumbnail" alt="Recipe Image">
                                                 </div> -->
-                                                <p class="card-text">Yields: ${recipe.recipeYields} Carbs Per Serving: ${recipe.carbsPerServing}</p>
+                                                <p class="card-text">Serves: ${recipe.recipeYields} &#9679 Carbs Per Serving: ${recipe.carbsPerServing}g</p>
 
                                                 <div class="col mx-auto pt-4" id="recipe-display-container">
                                                 <div class="accordion accordion-flush" id="recipe-collapse-${recipe.recipeId}">
