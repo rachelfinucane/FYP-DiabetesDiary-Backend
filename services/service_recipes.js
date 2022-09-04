@@ -89,6 +89,7 @@ function getRecipeSiteUrl(recipeSite) {
     let siteDict = {
         'BBC Good Food': 'site:https://www.bbcgoodfood.com/recipes/ -https://www.bbcgoodfood.com/recipes/collection',
         'MyRecipes': 'site:https://www.myrecipes.com/recipe/',
+        'AllRecipes': 'site: https://www.allrecipes.com/recipes/',
         'All': '-https://www.bbcgoodfood.com/recipes/collection' // Custom search engine is set up to pull from the above site only
     };
 
@@ -115,6 +116,8 @@ async function scrapeNutritionInfo(url) {
         return scrapeGoodHousekeeping(url);
     } else if (service.includes('myrecipes')) {
         return myRecipes(url);
+    } else if (service.includes('allrecipes')) {
+        return allRecipes(url);
     } else {
         throw new BadRequestError(`Could not process request to scrape nutritional info: 
         url was not to a supported recipe site`);
@@ -249,7 +252,7 @@ async function myRecipes(url) {
         let ingredientName = decode(checkboxListInput.getAttribute('data-ingredient'));
 
         // Deals with the case of the ingredient being wrapped in a link
-        if(ingredientName.includes("<a href=")) {
+        if (ingredientName.includes("<a href=")) {
             ingredientName = parse(ingredientName).innerText;
         }
 
@@ -301,6 +304,59 @@ async function myRecipes(url) {
      */
     function calculateCarbsPerServing(totalCarbs, yieldsAmount) {
         return totalCarbs / parseFloat(yieldsAmount);
+    }
+}
+
+/**
+ * Pulls html info from recipe web page.
+ * All info is stored in a JS object called props.
+ * Pull the info needed from that object.
+ * @param {string} url url of recipe
+ * @returns recipe with nutrition info
+ */
+async function allRecipes(url) {
+
+    let response = await axios.get(url);
+
+    const root = parse(response.data.toString());
+    // const infoNode = root.getElementById('__NEXT_DATA__');
+    const infoNode = root.querySelector('[type="application/ld+json"]');
+    const infoContent = (JSON.parse(infoNode.innerHTML))[1];
+    const carbsPerServing = getCarbs(infoContent.nutrition);
+    const yieldsAmount = getYieldsAmount(infoContent.recipeYield);
+    const ingredients = getIngredients(); // store ingredients and their amounts together
+    const instructions = getInstructions();
+
+    return {
+        recipeName: infoContent.name,
+        yields: yieldsAmount,
+        instructions: instructions,
+        ingredients: ingredients,
+        carbsPerServing: carbsPerServing,
+        type: "included with recipe"
+    }
+
+    function getCarbs(nutritionalInfo) {
+        const carbsString = nutritionalInfo.carbohydrateContent;
+        return carbsString.match(/\d+/)[0];
+    }
+
+    function getInstructions() {
+        return infoContent.recipeInstructions.map(instruction => {
+            return instruction.text;
+        }).join('\n');
+    }
+
+    function getIngredients() {
+        return infoContent.recipeIngredient.map(ingredient => {
+            return {
+                ingredientName: ingredient,
+                "ingredientAmount": null,
+                "ingredientUnit": null,
+                "apiFoodName": null,
+                "carbs": null
+            }
+        });
     }
 }
 
