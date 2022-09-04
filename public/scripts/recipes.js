@@ -117,6 +117,7 @@ function showSearchBox(event) {
                     <option value="1">All</option>
                     <option value="2">BBC Good Food</option>
                     <option value="3">MyRecipes</option>
+                    <option value="4">AllRecipes</option>
                 </select>
             </div>
 
@@ -321,10 +322,8 @@ function saveRecipe(event) {
  */
 function disableSaveButtons() {
     let saveButtons = Array.from(document.getElementsByClassName('save-btn'));
-    console.log("saved", saveButtons);
     saveButtons.forEach(button => {
         button.classList.add("disabled");
-        console.log(button);
     });
 }
 
