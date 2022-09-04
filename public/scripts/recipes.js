@@ -11,8 +11,8 @@ window.addEventListener('load', () => {
 /**
  * Pulls a user's recipes from server and displays them.
  */
-function getSavedRecipesFromServer() {
-    makeGetRequest(url = '/recipes/userId', params = '')
+async function getSavedRecipesFromServer() {
+    await makeGetRequest(url = '/recipes/userId', params = '')
         .then((data) => {
             localStorage.setItem('recipes', JSON.stringify(data));
             showSavedRecipes();
@@ -95,11 +95,48 @@ async function makePostRequest(url, body) {
 }
 
 /**
+ * DELETE request to server
+ * @param {string} url 
+ */
+// Some boilerplate taken from here:
+// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+async function makeDeleteRequest(url) {
+    // ref: https://www.npmjs.com/package/csurf
+    // See 'Using Ajax' Section
+    const token = document.getElementById('csrf-token').value;
+
+    result = await fetch(url, {
+        method: 'DELETE',
+        mode: 'same-origin',
+        headers: {
+            'CSRF-Token': token,
+            'Content-Type': 'application/json'
+        }
+    })
+        .catch(err => {
+            handleDisplayError("There was an error connecting to the server.");
+        })
+        .then(async response => {
+            if (response.status > 200 && response.status < 500) {
+                let message = await response.json();
+                handleDisplayError(message.message);
+                throw new Error(response.status, message.message);
+            } else if (response.status >= 500) {
+                let message = await response.json();
+                handleDisplayError(`There was an error connecting to the server (Response: ${response.status}, ${message?.message})`);
+                throw new Error(response.status, message?.message);
+            }
+        });
+
+}
+
+/**
  * Shows the recipe search box.
  * @param {event} event 
  */
 function showSearchBox(event) {
     event.preventDefault();
+    resetDisplayError();
     displayShowBackButton();
 
     const searchBoxHtml =
@@ -151,20 +188,20 @@ function showSavedRecipes() {
     recipeDisplayContainer.innerHTML = "";
 
     const recipes = JSON.parse(localStorage.getItem('recipes'));
-    recipes.map(recipe => {
-        
-        let ingredientsHtml = "";
-        if (recipe.recipeType == 'included with recipe') {
-            recipe.ingredients.forEach(ingredient => {
-                ingredientsHtml += `<p class="card-text">${ingredient.ingredientName}</p>`;
-            });
-        } else {
-            recipe.ingredients.forEach(ingredient => {
-                ingredientsHtml += `<p class="card-text">${ingredient.ingredientAmount} ${ingredient.ingredientUnit} ${ingredient.ingredientName}</p>`;
-            });
-        }
+    if (recipes) {
+        recipes.map(recipe => {
+            let ingredientsHtml = "";
+            if (recipe.recipeType == 'included with recipe') {
+                recipe.ingredients.forEach(ingredient => {
+                    ingredientsHtml += `<p class="card-text">${ingredient.ingredientName}</p>`;
+                });
+            } else {
+                recipe.ingredients.forEach(ingredient => {
+                    ingredientsHtml += `<p class="card-text">${ingredient.ingredientAmount} ${ingredient.ingredientUnit} ${ingredient.ingredientName}</p>`;
+                });
+            }
 
-        let recipeCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card">
+            let recipeCardHtml = `<div class="card col-md-8 mb-3 mx-auto" id="card">
                                     
                                             <div class="card-body">
                                                 <h3 class="card-title">${recipe.recipeName}</a></h3>
@@ -200,6 +237,9 @@ function showSavedRecipes() {
                                                         </div>
                                                       </div>
                                                     </div>
+                                                    <div class="d-grid gap-2 d-md-block">
+                                                        <button class='btn btn-outline-dark mt-3' id='btn|${recipe.recipeId}' onclick='deleteRecipe(event)'>Delete Recipe</button>
+                                                    </div>
                                                   </div>
                                                 
                                             </div>
@@ -207,9 +247,10 @@ function showSavedRecipes() {
                                         
                                 </div>`
 
-        recipeDisplayContainer.innerHTML += recipeCardHtml;
+            recipeDisplayContainer.innerHTML += recipeCardHtml;
 
-    });
+        });
+    }
 }
 
 /**
@@ -315,6 +356,23 @@ function saveRecipe(event) {
         .catch(err => {
             console.log(err);
         });
+}
+
+async function deleteRecipe(event) {
+    const recipeId = getRecipeIdToDelete(event);
+    const url = `/recipes/${recipeId}`;
+    await makeDeleteRequest(url)
+        .catch(err => {
+            console.log(err);
+        })
+        .then(async () => {
+            await getSavedRecipesFromServer();
+            handleDisplayError("Recipe Deleted");
+        });
+}
+
+function getRecipeIdToDelete(event) {
+    return event.target.id.split('|')[1];
 }
 
 /**

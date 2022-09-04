@@ -8,7 +8,7 @@ const { decode } = require('html-entities');
 const { removeTabsAndReturns, convertFractionToFloat } = require('../helpers/recipes.js');
 const { roundDecimalPlaces } = require('../helpers/helpers.js');
 const { getNutritionalInfo } = require('./service_food_api.js');
-const { handleGetRecipesByUserId, handleInsertRecipe, handleGetRecipesWithFilter } = require('../models/models_recipes.js');
+const { handleGetRecipesByUserId, handleInsertRecipe, handleGetRecipesWithFilter, handleDeleteRecipe } = require('../models/models_recipes.js');
 const { NotFoundError } = require('../errors/NotFound');
 const { BadRequestError } = require('../errors/BadRequest');
 
@@ -78,6 +78,15 @@ async function saveRecipe(url, userId, recipeImageUrl) {
 async function getRecipesByUserId(userId) {
     let results = await handleGetRecipesByUserId(userId);
     return JSON.parse(results.recipe);
+}
+
+/**
+ * Deletes a specified recipe
+ * @param {string} recipeId id of recipe to delete
+ * @param {string} userId id of user
+ */
+async function deleteRecipe(recipeId, userId) {
+    await handleDeleteRecipe(recipeId, userId);
 }
 
 /**
@@ -319,11 +328,16 @@ async function allRecipes(url) {
     let response = await axios.get(url);
 
     const root = parse(response.data.toString());
-    // const infoNode = root.getElementById('__NEXT_DATA__');
     const infoNode = root.querySelector('[type="application/ld+json"]');
     const infoContent = (JSON.parse(infoNode.innerHTML))[1];
     const carbsPerServing = getCarbs(infoContent.nutrition);
-    const yieldsAmount = getYieldsAmount(infoContent.recipeYield);
+    let yieldsAmount;
+    if(infoContent.recipeYield){
+        yieldsAmount = getYieldsAmount(infoContent.recipeYield);
+    } else {
+        const unParsedYield = root.querySelector('.recipe-adjust-servings__size-quantity').innerText;
+        yieldsAmount = getYieldsAmount(unParsedYield);
+    }
     const ingredients = getIngredients(); // store ingredients and their amounts together
     const instructions = getInstructions();
 
@@ -404,4 +418,4 @@ function getYieldsAmount(string) {
     }) / unParsedYield.length;
 }
 
-module.exports = { scrapeNutritionInfo, searchRecipes, saveRecipe, getRecipesByUserId, getRecipesWithFilter };
+module.exports = { scrapeNutritionInfo, searchRecipes, saveRecipe, getRecipesByUserId, getRecipesWithFilter, deleteRecipe };

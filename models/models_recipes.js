@@ -47,10 +47,30 @@ async function handleGetRecipesByUserId(userId) {
 
 
     const result = await pool.request()
-        .input('userId', sql.UniqueIdentifier, userId, userId)
+        .input('userId', sql.UniqueIdentifier, userId)
         .query(queryString);
 
     return result.recordset[0];
+}
+
+/**
+ * Deletes specified recipe from db for the logged in user
+ * @param {string} recipeId recipeId to delete
+ * @param {string} userId userId to delete
+ */
+async function handleDeleteRecipe(recipeId, userId) {
+    const pool = await poolAsync;
+    const queryString = "DELETE FROM Recipe WHERE recipeId = @recipeId AND userId = @userId";
+
+
+    const result = await pool.request()
+        .input('userId', sql.UniqueIdentifier, userId)
+        .input('recipeId', sql.UniqueIdentifier, recipeId)
+        .query(queryString);
+
+    if (result.rowsAffected[0] == 0) {
+        throw new Error("Recipe not deleted");
+    }
 }
 
 /**
@@ -217,7 +237,6 @@ function constructIngredientListInserts(ingredientIds, recipeId) {
 }
 
 async function checkRecipeExists(pool, recipe, userId, recipeImageUrl) {
-    console.log(userId, recipe);
     const queryString = "SELECT * FROM Recipe WHERE userId = @userId " +
         "AND recipeName = @recipeName AND recipeImageUrl = @recipeImageUrl " +
         "AND recipeType = @recipeType";
@@ -230,17 +249,7 @@ async function checkRecipeExists(pool, recipe, userId, recipeImageUrl) {
             .input("recipeImageUrl", sql.VarChar(1000), recipeImageUrl)
             .query(queryString);
 
-        console.log(result);
         if (result.rowsAffected[0] > 0) {
-            // class BadRequestError extends Error {
-            //     constructor(message) {
-            //         super();
-            //         this.name = this.constructor.name
-
-            //         this.message = message;
-            //         this.statusCode = 400
-            //     }
-            // }
             throw new BadRequestError("Recipe already saved");
         }
     } catch (err) {
@@ -276,4 +285,4 @@ async function insertBulkIngredients(request, recipe) {
     result = await request.bulk(ingredientTable);
 }
 
-module.exports = { handleInsertRecipe, handleGetRecipesByUserId, handleGetRecipesWithFilter }
+module.exports = { handleInsertRecipe, handleGetRecipesByUserId, handleGetRecipesWithFilter, handleDeleteRecipe }
