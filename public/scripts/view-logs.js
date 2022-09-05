@@ -80,12 +80,6 @@ function addOuterCard(logTime, index) {
  */
 function addBloodSugar(bloodSugar, index) {
     if (objectNotEmpty(bloodSugar)) {
-        // return `<div class="input-group mb-3">
-        //             <input class="form-control" type="text" value="${bloodSugar.value}"
-        //                 aria-label="Blood Sugar" aria-describedby="blood-sugar-units-${index}" disabled readonly>
-        //                 <span class="input-group-text" id="blood-sugar-units-${index}">mmol/mol</span>
-        //         </div>`
-
         // Source of icon: https://icons.getbootstrap.com/icons/droplet-fill/
         return `<p class="mt-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-droplet-fill" viewBox="0 0 16 16">
@@ -105,15 +99,6 @@ function addBloodSugar(bloodSugar, index) {
  */
 function addMeal(meal, index) {
     if (objectNotEmpty(meal)) {
-        // return `<div class="mb-3">
-        //             <div class="input-group mb-3">
-        //                 <span class="input-group-text" id="meal-name-input-${index}">${meal.mealName}</span>
-        //                 <input class="form-control" type="text" value="${meal.totalCarbs}"
-        //                     aria-label="Disabled input example" disabled readonly>
-        //                 <span class="input-group-text" id="basic-addon2">grams Carbs</span>
-        //             </div>
-        //         </div>`
-
         // Icon source: https://icons.getbootstrap.com/icons/egg-fried/
         return `<p class="mt-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-egg-fried" viewBox="0 0 16 16">
@@ -134,12 +119,6 @@ function addMeal(meal, index) {
  */
 function addInsulin(insulinList, index) {
     if (objectNotEmpty(insulinList)) {
-        // return `<div class="input-group mb-3">
-        //             <input class="form-control" type="text" value="${insulinList.units}"
-        //                 aria-label="Insulin Type" id="insulin-type-${index}" disabled readonly>
-        //             <span class="input-group-text" id="insulin-units">Units ${insulinList.insulinType}</span>
-        //         </div>`
-
         // Icon source: https://icons.getbootstrap.com/icons/prescription2/
         return `<p class="mt-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-prescription2" viewBox="0 0 16 16">
