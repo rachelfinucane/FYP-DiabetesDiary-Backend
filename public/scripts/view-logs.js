@@ -58,8 +58,7 @@ function displayData(singleLog, index) {
  * @returns HTML for outer card
  */
 function addOuterCard(logTime, index) {
-    let time = new Date(Date.parse(logTime));
-    let timeString = time.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    const timeString = getLogTime(logTime);
 
     return `<div class="col mx-auto">
                 <div class="card shadow-sm" id="card-${index}">
@@ -70,6 +69,18 @@ function addOuterCard(logTime, index) {
                 </div>
             </div>`;
 
+}
+
+function getLogTime(logTime) {
+    const currentLocalDate = new Date();
+    const dateTimeOffsetInMilliseconds = currentLocalDate.getTimezoneOffset() * 60 * 1000;
+
+    const logDate = new Date(Date.parse(logTime));
+    const logDateInSeconds = logDate.getTime();
+
+    const displayTime = new Date(logDateInSeconds + dateTimeOffsetInMilliseconds);
+    const timeString = displayTime.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    return timeString;
 }
 
 /**
