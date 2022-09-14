@@ -237,11 +237,9 @@ function showSavedRecipes() {
                                                         </div>
                                                       </div>
                                                     </div>
-                                                    <!-- Removing Delete Button - since not submitted with original code
                                                     <div class="d-grid gap-2 d-md-block">
                                                         <button class='btn btn-outline-dark mt-3' id='btn|${recipe.recipeId}' onclick='deleteRecipe(event)'>Delete Recipe</button>
                                                     </div>
-                                                    -->
                                                   </div>
                                                 
                                             </div>

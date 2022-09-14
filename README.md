@@ -1,5 +1,8 @@
 # FYP-Express-Backend
 
+## Marking
+The code as it was at the time of submission has been saved to the branch 'frozen', but the main branch has subsequent commits.
+
 ## Set-up
 - To run this project, <a href='https://nodejs.org/en/'>Node.js</a> needs to be installed.
 - Clone this project, then navigate to the root folder and run the command ``npm install``.
